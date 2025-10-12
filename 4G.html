@@ -8,18 +8,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preconnect" href="https://images.unsplash.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@300;400;500;600&display=swap"
-    rel="stylesheet"
-  />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <style>
     html { scroll-behavior: smooth; scrollbar-width: thin; scrollbar-color: #444444 #1E1E1E; }
-    body {
-      font-family: 'Montserrat', sans-serif;
-      background-color: #121212; color: #EAEAEA;
+    body { font-family: 'Montserrat', sans-serif; background-color: #121212; color: #EAEAEA;
       background-image: linear-gradient(rgba(18, 18, 18, 0.92), rgba(18, 18, 18, 0.92)), url('https://images.unsplash.com/photo-1604975701397-1cfdf50bd745?q=80&w=1974&auto=format&fit=crop');
-      background-size: cover; background-position: center; background-attachment: fixed;
-    }
+      background-size: cover; background-position: center; background-attachment: fixed; }
     .text-gold { color: #D4AF37; }
     .bg-card { background-color: #1E1E1E; }
     .border-card { border-color: #444; }
@@ -36,13 +30,11 @@
     .highlight { border-left: 3px solid #D4AF37; border-radius: 2px; }
     #projects-grid > div { opacity: 1; transform: scale(1); transition: opacity .25s ease, transform .25s ease; }
     #projects-grid.filtering > div { opacity: 0; transform: scale(.97); }
+    /* Centrage du dernier item quand la dernière ligne ne contient qu'une carte (>= 1280px) */
     @media (min-width:1280px){
-      /* Minor layout polish, optional */
+      #projects-grid:has(> :nth-child(3n+1):last-child) > :last-child { grid-column: 2; }
     }
-    @media (prefers-reduced-motion: reduce) {
-      * { animation: none !important; transition: none !important; }
-    }
-    /* Live region is visually hidden but accessible */
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
     .sr-only { position: absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
   </style>
 </head>
@@ -52,11 +44,7 @@
       <header class="text-center mb-16">
         <h1 class="text-5xl sm:text-7xl font-bold text-white tracking-wider">STUDIO DE PRODUCTION</h1>
         <div class="mt-4 text-lg text-gold uppercase tracking-[0.2em]">Cahier des Charges 3D</div>
-        <a
-          href="https://drive.google.com/drive/folders/1x6nghmXtweIPvZgp7DjSP-8PAH4O8iPd"
-          target="_blank" rel="noopener noreferrer"
-          class="mt-8 inline-block bg-transparent border border-gold text-gold font-semibold py-2 px-6 rounded-lg hover:bg-gold hover:text-black transition-colors duration-300"
-        >Accéder au Drive du Projet <span aria-hidden="true">↗</span></a>
+        <a href="https://drive.google.com/drive/folders/1x6nghmXtweIPvZgp7DjSP-8PAH4O8iPd" target="_blank" rel="noopener noreferrer" class="mt-8 inline-block bg-transparent border border-gold text-gold font-semibold py-2 px-6 rounded-lg hover:bg-gold hover:text-black transition-colors duration-300">Accéder au Drive du Projet <span aria-hidden="true">↗</span></a>
         <div id="results-live" class="sr-only" aria-live="polite"></div>
       </header>
 
@@ -83,19 +71,8 @@
         <div class="sticky top-0 z-20 bg-[#121212]/80 backdrop-blur-md py-4 mb-8 rounded-xl">
           <div class="flex flex-col items-center justify-center">
             <div class="relative w-full sm:w-96" aria-label="Recherche de réalisateur">
-              <input
-                type="text"
-                id="student-search"
-                placeholder="Trouver un réalisateur..."
-                class="w-full bg-card border border-card rounded-lg py-2 px-4 leading-tight focus:outline-none focus:bg-card focus:border-gold"
-                role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="autocomplete-list"
-                autocomplete="off" autocapitalize="off" spellcheck="false"
-              />
-              <div
-                id="autocomplete-list"
-                class="absolute hidden w-full mt-1 bg-card border border-card rounded-lg shadow-lg max-h-60 overflow-y-auto z-30"
-                role="listbox"
-              ></div>
+              <input type="text" id="student-search" placeholder="Trouver un réalisateur..." class="w-full bg-card border border-card rounded-lg py-2 px-4 leading-tight focus:outline-none focus:bg-card focus:border-gold" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="autocomplete-list" autocomplete="off" autocapitalize="off" spellcheck="false" />
+              <div id="autocomplete-list" class="absolute hidden w-full mt-1 bg-card border border-card rounded-lg shadow-lg max-h-60 overflow-y-auto z-30" role="listbox"></div>
             </div>
             <p class="mt-2 text-xs text-gray-500">Astuce : appuyez sur <kbd class="px-1 py-0.5 bg-card border border-card rounded">/</kbd> pour focaliser la recherche.</p>
           </div>
@@ -120,7 +97,7 @@
   </div>
 
   <script>
-    // --- Données (inchangées) ---
+    // --- Données ---
     const projectData = [
       { id: 1, name: 'The Nexus: Multi-Verse Library', mission: 'Créez un sanctuaire immersif pour les fans de fiction. Chaque zone thématique doit transporter le visiteur dans son univers favori grâce à un design (architecture, mobilier, lumière) qui raconte une histoire.', students: [
         { name: 'Rayane', class: 'B', mission: { title: 'Le Trône de la Marionnettiste', description: 'Modélisez un fauteuil de lecture sculptural pour la zone Manhwa. Ce doit être une œuvre d\'art évoquant pouvoir et élégance, qui invite à l\'immersion.' } },
@@ -137,72 +114,66 @@
       { id: 3, name: 'The Blockbuster Factory', mission: 'L\'enjeu de ce projet est la transformation. Votre mission est de concevoir un espace caméléon, capable de changer radicalement d\'ambiance en un temps record. La modularité, l\'ingéniosité et la polyvalence du mobilier sont les clés du succès.', students: [
         { name: 'Iris', class: 'A', mission: { title: 'Le Bar de Toretto', description: 'Créez un bar mobile au design industriel, inspiré de *Fast & Furious*. Il doit être robuste, fonctionnel et suffisamment charismatique pour devenir une pièce centrale.' } },
         { name: 'Noriane', class: 'A', mission: { title: 'La Loge de Star "PDG"', description: 'Aménagez une loge de préparation luxueuse et high-tech. Pensez au confort et à l\'efficacité professionnelle en intégrant un miroir, un éclairage et des rangements optimaux.' } },
-        { name: 'Lindsay', class: 'B', mission: { title: 'Le Salon Modulable', description: 'Concevez un ensemble de meubles (canapés, tables) comme des "briques de Lego" pour un réalisateur, faciles à déplacer et à reconfigurer pour créer une multitude d\'ambiances.' } },
+        { name: 'Lindsay', class: 'B', mission: { title: 'Le Salon de mise en scène modulable', description: 'Concevez un ensemble de meubles comme des briques créatives, faciles à déplacer et reconfigurer pour créer plusieurs ambiances de tournage.' } },
         { name: 'Kassandra', class: 'A', mission: { title: 'La Cuisine de "Bricoleuse"', description: 'Modélisez une cuisine de plateau de tournage. Elle doit être esthétique sous tous les angles, fonctionnelle et facilement adaptable à différents scénarios.' } }
       ] },
       { id: 4, name: 'The Power Suit Office', mission: 'Votre mission est de matérialiser le pouvoir, l\'ambition et l\'élégance dans un environnement de travail. Chaque meuble et chaque matériau doit respirer le succès et la confiance. Concevez une véritable déclaration de statut, un espace conçu pour prendre des décisions qui changent la donne.', students: [
         { name: 'Ghintia', class: 'B', mission: { title: 'Le Bureau de l\'Associé Principal', description: 'Concevez un bureau qui impose le respect par son design et ses matériaux nobles (bois sombre, marbre). Il doit être massif mais élégant.' } },
-        { name: 'Gloria', class: 'A', mission: { title: 'La Salle du Conseil d\'Administration', description: 'Imaginez une table de réunion imposante qui favorise la communication, en intégrant la technologie (connectique, écrans) de manière invisible.' } },
-        { name: 'Vianney', class: 'B', mission: { title: 'Le Bureau Exécutif Augmenté', description: 'Créez un poste de contrôle personnel où design et technologie fusionnent. Intégrez des surfaces tactiles et des rangements secrets pour une efficacité absolue.' } },
-        { name: 'Ian', class: 'A', mission: { title: 'La Bibliothèque Juridique Murale', description: 'Concevez une bibliothèque monumentale qui agit comme un mur de savoir et de prestige, structurant l\'espace et affirmant l\'autorité du lieu.' } }
+        { name: 'Gloria', class: 'A', mission: { title: 'La Salle du Conseil d\'Administration', description: 'Imaginez une table de réunion imposante qui favorise la communication, en intégrant la technologie de manière discrète.' } },
+        { name: 'Vianney', class: 'B', mission: { title: 'Le Bureau Exécutif Augmenté', description: 'Créez un poste de contrôle personnel où design et technologie dialoguent. Intégrez des surprises spatiales et une vraie sensation de maîtrise.' } },
+        { name: 'Ian', class: 'A', mission: { title: 'La Bibliothèque Juridique Murale', description: 'Concevez une bibliothèque monumentale qui agit comme un mur de savoir et de prestige, structurant l\'espace sans écraser.' } }
       ] },
       { id: 5, name: 'The Street Food Arena', mission: 'Votre objectif est de capturer l\'énergie brute de la rue et de la canaliser dans un lieu vibrant et électrique. Pensez cet espace comme un festival permanent où le design industriel, fonctionnel et un peu rebelle sert de scène à la culture urbaine et culinaire.', students: [
         { name: 'Tryphose', class: 'B', mission: { title: 'Le Totem Urbain : Bar & DJ Booth', description: 'Créez une structure centrale (type container/échafaudage) qui sert à la fois de bar principal et de cabine surélevée pour le DJ. Elle doit être un point de ralliement visible.' } },
         { name: 'Sarah', class: 'A', mission: { title: 'Le Stand de Pâtisserie Urbaine', description: 'Imaginez un kiosque ou un food truck au design créatif, attractif et hyper-fonctionnel dans un espace réduit.' } },
         { name: 'Grâce', class: 'B', mission: { title: 'La Cuisine de Battle Ouverte', description: 'Concevez le "ring" des chefs. L\'ergonomie et l\'efficacité sont essentielles pour la performance sous pression, tout en offrant un spectacle au public.' } },
-        { name: 'Stessy', class: 'A', mission: { title: 'La Scène des Artistes Urbains', description: 'Concevez une petite scène modulable pour des performances live (musiciens, slameurs, danseurs). Pensez à l\'éclairage et à un design qui peut s\'adapter à différents types d\'artistes pour animer l\'arène.' } }
+        { name: 'Stessy', class: 'A', mission: { title: 'La Scène des Artistes Urbains', description: 'Concevez une petite scène modulable pour des performances live. Elle doit respirer l\'improvisation et l\'énergie urbaine.' } }
       ] },
       { id: 6, name: 'The Oasis: Detox & Design', mission: 'Concevez une expérience de déconnexion totale à travers le design. Ce spa futuriste doit être un lieu épuré et surprenant, où la technologie est utilisée pour amplifier les sensations et apaiser l\'esprit. Chaque détail doit contribuer à créer une bulle hors du temps.', students: [
-        { name: 'Brunelle', class: 'B', mission: { title: 'La Chaise Longue \'Nail Art\' Sculpturale', description: 'Imaginez une chaise longue comme une sculpture fonctionnelle. Inspirez-vous de l\'onglerie pour ses formes fluides et sa finition laquée, sans tomber dans le littéral.' } },
-        { name: 'Myra', class: 'B', mission: { title: 'Le Mini-Booth de Coiffure Interactif', description: 'Concevez un espace privatif et luxueux pour la coiffure et le maquillage. Votre mission est de dessiner l\'architecture du booth, en intégrant un miroir interactif comme pièce centrale. Pensez au mobilier (fauteuil, rangements) et à l\'éclairage pour créer une expérience exclusive.' } },
-        { name: 'Émeraude', class: 'A', mission: { title: 'Le Hammam Scénographique', description: 'Concevez un hammam où une expérience lumineuse et sonore complète la chaleur. L\'éclairage programmable doit créer des ambiances immersives et évolutives.' } },
-        { name: 'Esther', class: 'B', mission: { title: 'La Salle de Repos Dystopique', description: 'Aménagez un cocon de méditation où des projections à 360° transforment l\'espace en un paysage mental apaisant, offrant une évasion visuelle.' } }
+        { name: 'Brunelle', class: 'B', mission: { title: 'La Chaise Longue "Nail Art" Sculpturale', description: 'Imaginez une chaise longue comme une sculpture fonctionnelle. Inspirez-vous de l\'onglerie pour ses formes fluides et sa finition laquée, sans tomber dans le littéral.' } },
+        { name: 'Myra', class: 'B', mission: { title: 'Le Mini-Booth de Coiffure Interactif', description: 'Concevez un espace privatif et luxueux pour la coiffure et le maquillage. Le miroir interactif devient la pièce centrale de l\'expérience.' } },
+        { name: 'Émeraude', class: 'A', mission: { title: 'Le Hammam Scénographique', description: 'Concevez un hammam où la lumière et le son accompagnent la chaleur. L\'ambiance doit être immersive et évolutive.' } },
+        { name: 'Esther', class: 'B', mission: { title: 'La Salle de Repos Dystopique', description: 'Aménagez un cocon de méditation où des projections enveloppantes transforment l\'espace en un paysage mental apaisant.' } }
       ] },
-      { id: 7, name: 'The Lore Lodge', mission: 'Votre défi est de créer une boutique-hôtel/concept store dont les espaces racontent une histoire immersive. Le client ne doit pas simplement occuper une chambre...mais habiter un univers. Chaque objet, du lit au balcon, doit être un chapitre de ce récit qui rend l\'expérience inoubliable.', students: [
-        { name: 'Elicia', class: 'B', mission: { title: 'Le Lit Signature', description: 'Modélisez un lit et sa tête de lit comme la déclaration principale de l\'univers choisi (culture, ethnie, fiction), en alliant un design fort et un confort optimal.' } },
-        { name: 'Faghez', class: 'B', mission: { title: 'Le Dressing Thématique', description: 'Concevez un espace de rangement qui prolonge l\'univers de la chambre. Utilisez des matériaux, motifs ou systèmes d\'ouverture qui rappellent l\'inspiration choisie.' } },
-        { name: 'Loan', class: 'A', mission: { title: 'L\'Ouverture sur le Monde', description: 'Imaginez un balcon ou une fenêtre qui soit aussi une fenêtre sur l\'imaginaire. Intégrez obligatoirement des VFX pour augmenter la réalité en projetant des éléments de l\'univers choisi.' } },
-        { name: 'Lydia', class: 'A', mission: { title: 'L\'Assise Principale', description: 'Créez les fauteuils ou le canapé du coin salon. Leurs formes, textures et couleurs doivent être sculpturales et ancrer immédiatement le visiteur dans le thème de la chambre.' } }
+      { id: 7, name: 'The Lore Lodge', mission: 'Votre défi est de créer une boutique-hôtel/concept store dont les espaces racontent une histoire immersive. Le client ne doit pas simplement occuper une chambre...mais habiter un univers.', students: [
+        { name: 'Elicia', class: 'B', mission: { title: 'Le Lit Signature', description: 'Modélisez un lit et sa tête de lit comme la déclaration principale de l\'univers choisi, en alliant un design fort et un confort réel.' } },
+        { name: 'Faghez', class: 'B', mission: { title: 'Le Dressing Thématique', description: 'Concevez un espace de rangement qui prolonge l\'univers de la chambre. Les gestes d\'usage révèlent le thème.' } },
+        { name: 'Loan', class: 'A', mission: { title: 'L\'Ouverture sur le Monde', description: 'Imaginez un balcon ou une fenêtre qui soit aussi une fenêtre sur l\'imaginaire. Des effets visuels viennent augmenter le réel.' } },
+        { name: 'Lydia', class: 'A', mission: { title: 'L\'Assise Principale', description: 'Créez une assise sculpturale qui ancre le thème dès le premier regard. La forme prime sur la modularité.' } }
       ] },
-      { id: 8, name: 'The Mind Retreat', mission: 'Votre objectif est de concevoir un refuge pour l\'esprit, un lieu de reconnexion avec soi-même et la nature. L\'architecture doit être humble et au service du bien-être, en privilégiant la lumière naturelle, les matériaux bruts et la vue sur l\'extérieur.', students: [
-        { name: 'Coralie', class: 'B', mission: { title: 'La Bibliothèque Personnalisée', description: 'Imaginez une bibliothèque qui invite à la découverte, avec un éclairage qui met en valeur les livres ou des modules reconfigurables en assises.' } },
-        { name: 'Ruth A.', class: 'B', mission: { title: 'Le Chevalet de Peinture face à la Mer', description: 'Créez un espace de création minimaliste où chaque élément (chevalet, siège, rangement) est un bel objet fonctionnel en harmonie avec le paysage.' } },
-        { name: 'Jessica', class: 'A', mission: { title: 'Le Mur Végétal Intérieur/Extérieur', description: 'Concevez une transition douce entre l\'intérieur et la nature avec un mur de plantes qui semble entrer dans la pièce. Pensez nature, lumière, arrosage, connexions..' } },
-        { name: 'Ronelle', class: 'A', mission: { title: 'Le Lit-Nid de Lecture', description: 'Imaginez un lit non pas pour dormir, mais pour s\'évader. Confortable, enveloppant, avec éclairage et rangements intégrés, ce doit être le refuge parfait pour lire.' } },
-        { name: 'Marie T.', class: 'A', mission: { title: 'La Scène de Création', description: 'Concevez une table basse comme un mini-atelier, avec une surface de travail inspirante et un éclairage spécifique qui en fait invite à la créativité et au désordre disruptif.' } }
+      { id: 8, name: 'The Mind Retreat', mission: 'Votre objectif est de concevoir un refuge pour l\'esprit, un lieu de reconnexion avec soi-même et la nature. L\'architecture doit être humble, au service du bien-être.', students: [
+        { name: 'Coralie', class: 'B', mission: { title: 'La Bibliothèque Personnalisée', description: 'Imaginez une bibliothèque qui invite à la découverte, avec des modules qui peuvent aussi devenir des assises.' } },
+        { name: 'Ruth A.', class: 'B', mission: { title: 'Le Chevalet de Peinture face à la Mer', description: 'Créez un espace minimaliste où chaque élément est un bel objet fonctionnel en harmonie avec le paysage.' } },
+        { name: 'Jessica', class: 'A', mission: { title: 'Le Mur Végétal Intérieur/Extérieur', description: 'Concevez une transition douce entre l\'intérieur et la nature, comme si le végétal entrait dans la pièce.' } },
+        { name: 'Ronelle', class: 'A', mission: { title: 'Le Lit-Nid de Lecture', description: 'Imaginez un lit pour s\'évader, plus que pour dormir : confortable, enveloppant, propice à la lecture.' } },
+        { name: 'Marie T.', class: 'A', mission: { title: 'La Scène de Création', description: 'Concevez une table basse comme un mini-atelier, avec une surface inspirante et un éclairage intime.' } }
       ] },
-      { id: 9, name: 'Sème City OPEN PARK (SCOP)', mission: 'Ce projet doit être pensé comme ayant un impact réel. Votre mission est de proposer une vision qui transforme un espace public en un lieu de vie plus urbain, fonctionnel et esthétique. Chaque élément doit être pensé pour l\'usage des citoyens, la durabilité et l\'identité de la ville.', students: [
-        { name: 'Ashley', class: 'B', mission: { title: 'La Toiture Dansante & Intelligente', description: 'Créez une structure d\'ombrage sculpturale. Le défi est de concevoir des formes organiques qui sont aussi fonctionnelles, en intégrant un système de récupération d\'eau de pluie.' } },
-        { name: 'Korel', class: 'A', mission: { title: "L'Abri Urbain Modulaire", description: 'Concevez des abris qui soient des points de rencontre confortables et sécurisants, avec un design moderne et adaptable à différents lieux du parc.' } },
-        { name: 'Lidwine', class: 'A', mission: { title: 'Le Mobilier Institutionnel', description: 'Imaginez des bancs, poubelles et bornes d\'information qui participent à l\'identité visuelle du parc par un design robuste, ergonomique et esthétique.' } },
-        { name: 'Shaneen', class: 'A', mission: { title: 'L\'Aire de Jeux "Kawaii"', description: 'Créez une aire de jeux qui stimule l\'imagination en toute sécurité, avec des formes douces, des couleurs vives et des structures originales.' } }
+      { id: 9, name: 'Sème City OPEN PARK (SCOP)', mission: 'Ce projet doit être pensé pour l\'impact réel. Votre mission est de transformer un espace public en un lieu de vie urbain, fonctionnel et esthétique.', students: [
+        { name: 'Ashley', class: 'B', mission: { title: 'La Toiture Dansante & Intelligente', description: 'Créez une structure d\'ombrage sculpturale qui marie forme et usage, en dialoguant avec la pluie et la lumière.' } },
+        { name: 'Korel', class: 'A', mission: { title: 'L\'Abri Urbain Modulaire', description: 'Concevez des abris comme des points de rencontre confortables et sécurisants, adaptables à différents lieux du parc.' } },
+        { name: 'Lidwine', class: 'A', mission: { title: 'Le Mobilier Institutionnel', description: 'Imaginez des bancs, poubelles et bornes d\'information qui portent l\'identité du parc par un design robuste et clair.' } },
+        { name: 'Shaneen', class: 'A', mission: { title: 'L\'Aire de Jeux "Kawaii"', description: 'Créez une aire de jeux qui stimule l\'imagination en toute sécurité, avec des formes douces et des structures originales.' } }
       ] },
-      { id: 10, name: 'The Kinetic Stage', mission: 'Pensez ce studio comme une scène de danse & théâtre pour la création. L\'espace doit se métamorphoser selon les besoins (shooting, atelier, showroom). Le mobilier est mobile, transformable et se déploie pour s\'adapter à chaque projet créatif.', students: [
-        { name: 'Zirwath', class: 'B', mission: { title: 'Le portant à vêtements sculptural', description: 'Réinventez le portant pour qu\'il soit une pièce de design qui les met en valeur. Sa mobilité et sa modularité sont essentielles.' } },
-        { name: 'Aubine', class: 'A', mission: { title: 'Le miroir sur pied "filaire"', description: 'Concevez un miroir léger et poétique, inspiré de vos tableaux filaires, avec une structure fine, élégante et facile à déplacer, mais entièrement à sa place dans la salle de danse.' } },
-        { name: 'Maëlys', class: 'A', mission: { title: 'La table de création "rustique minimaliste"', description: 'Imaginez une grande table de travail en matériaux bruts, conçue intelligemment pour pouvoir se diviser en plusieurs postes indépendants, tout en restant ultra-esthétique.' } },
-        { name: 'Tiffany (Boni)', class: 'A', mission: { title: "Le salon d'accueil modulable", description: 'Créez un ensemble de sièges pour l\'accueil qui puisse se reconfigurer facilement, passant d\'une zone d\'attente à un espace de brainstorming.' } },
-        { name: 'Roxane', class: 'A', mission: { title: 'La Station d\'Écoute Rétro-Kinetic', description: 'Concevez un meuble qui cache et révèle une platine vinyle. Le défi est de modéliser le mécanisme d\'ouverture, alliant bois rétro et mouvement cinétique.' } }
+      { id: 10, name: 'The Kinetic Stage', mission: 'Pensez ce studio comme une scène de théâtre pour la création. L\'espace doit se métamorphoser selon les besoins (shooting, atelier, showroom).', students: [
+        { name: 'Zirwath', class: 'B', mission: { title: 'Le portant à vêtements sculptural', description: 'Réinventez le portant pour qu\'il devienne une pièce de design à part entière, mobile et expressive.' } },
+        { name: 'Aubine', class: 'A', mission: { title: 'Le miroir sur pied « filaire »', description: 'Concevez un miroir léger et poétique, comme une ligne dessinée dans l\'espace.' } },
+        { name: 'Maëlys', class: 'A', mission: { title: 'La table de création « rustique minimaliste »', description: 'Imaginez une grande table de travail en matériaux bruts, qui puisse se diviser en plusieurs postes indépendants.' } },
+        { name: 'Tiffany', class: 'A', mission: { title: "Le salon d'accueil modulable", description: 'Créez un ensemble de sièges pour l\'accueil qui puisse se reconfigurer facilement, passant d\'une zone d\'attente à un espace de brainstorming.' } },
+        { name: 'Roxane', class: 'A', mission: { title: 'La Station d\'Écoute Rétro-Kinetic', description: 'Concevez un meuble qui cache et révèle une platine vinyle. Le mécanisme d\'ouverture doit créer un petit moment de théâtre.' } }
       ] }
     ];
 
     // --- Utils ---
-    const $$ = (sel, root = document) => root.querySelector(sel);
-    const $$$ = (sel, root = document) => root.querySelectorAll(sel);
+    const $$ = (sel, root=document) => root.querySelector(sel);
+    const $$$ = (sel, root=document) => root.querySelectorAll(sel);
     const normalize = (str) => str.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '');
     const escapeHTML = (s) => s.replace(/[&<>\"]/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]));
 
-    // Pré-indexation pour des recherches plus rapides
-    const preIndexed = projectData.map(p => ({
-      id: p.id,
-      name: p.name,
-      mission: p.mission,
-      students: p.students,
-      studentNamesNorm: p.students.map(s => normalize(s.name))
-    }));
+    // Pré-indexation
+    const preIndexed = projectData.map(p => ({ id:p.id, name:p.name, mission:p.mission, students:p.students, studentNamesNorm:p.students.map(s=>normalize(s.name)) }));
     const allStudentNames = [...new Set(projectData.flatMap(p => p.students.map(s => s.name)))].sort();
 
-    // --- Références DOM ---
+    // --- Refs DOM ---
     const projectsGrid = $$('#projects-grid');
     const studentSearch = $$('#student-search');
     const autocompleteList = $$('#autocomplete-list');
@@ -212,46 +183,52 @@
     const modalBody = $$('#modal-body');
     const live = $$('#results-live');
 
-    let previouslyFocusedElement = null;
-    let activeSuggestion = -1;
-    let lastQuery = '';
+    let previouslyFocusedElement = null, activeSuggestion = -1, lastQuery = '';
 
-    // Debounce générique
-    const debounce = (fn, delay=150) => { let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn.apply(null, args), delay); }; };
+    const debounce = (fn, d=150) => { let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn.apply(null,a), d); }; };
 
-    // Rendu cartes (génération string + innerHTML pour minimiser le coût DOM)
-    const cardHTML = (project, searchValueNorm) => {
+    const cardHTML = (project, qNorm) => {
       const memberCount = project.students.length;
-      const matching = searchValueNorm
-        ? project.students.filter(s => project.studentNamesNorm.includes(normalize(s.name)) && normalize(s.name).includes(searchValueNorm)).map(s => s.name)
-        : [];
-      const matches = matching.length ? `<div class="mt-4 pt-4 border-t border-card"><p class="text-xs text-gray-400">Résultat pour : <span class="font-semibold text-gold">${escapeHTML(matching.join(', '))}</span></p></div>` : '';
+      const matching = qNorm ? project.students.filter(s => normalize(s.name).includes(qNorm)).map(s=>s.name) : [];
+      const matches = matching.length ? `<div class=\"mt-4 pt-4 border-t border-card\"><p class=\"text-xs text-gray-400\">Résultat pour : <span class=\"font-semibold text-gold\">${escapeHTML(matching.join(', '))}</span></p></div>` : '';
       return `
-        <div class="bg-card p-6 rounded-2xl cursor-pointer card-hover" data-project-id="${project.id}" role="button" tabindex="0">
-          <div class="flex-grow">
-            <h3 class="text-2xl font-bold text-white mb-2">${escapeHTML(project.name)}</h3>
-            <p class="text-sm text-gray-400 mb-4">${escapeHTML(project.mission)}</p>
+        <div class=\"bg-card p-6 rounded-2xl cursor-pointer card-hover\" data-project-id=\"${project.id}\" role=\"button\" tabindex=\"0\">
+          <div class=\"flex-grow\">
+            <h3 class=\"text-2xl font-bold text-white mb-2\">${escapeHTML(project.name)}</h3>
+            <p class=\"text-sm text-gray-400 mb-4\">${escapeHTML(project.mission)}</p>
           </div>
-          <div class="mt-auto">
-            <div class="flex justify-between items-center text-sm pt-4 border-t border-card">
-              <span class="font-semibold text-gray-300">${memberCount} réalisateur${memberCount>1?'s':''}</span>
-              <span class="text-gold font-medium">Consulter le Brief →</span>
+          <div class=\"mt-auto\">
+            <div class=\"flex justify-between items-center text-sm pt-4 border-t border-card\">
+              <span class=\"font-semibold text-gray-300\">${memberCount} réalisateur${memberCount>1?'s':''}</span>
+              <span class=\"text-gold font-medium\">Consulter le Brief →</span>
             </div>
             ${matches}
           </div>
-        </div>
-      `;
+        </div>`;
+    };
+
+    const centerLastIfRemainderOne = () => {
+      const cols = matchMedia('(min-width:1280px)').matches ? 3 : (matchMedia('(min-width:768px)').matches ? 2 : 1);
+      Array.from(projectsGrid.children).forEach(el => { el.style.gridColumn = ''; });
+      if (cols !== 3) return;
+      const items = projectsGrid.children;
+      if (!items.length) return;
+      if (items.length % 3 === 1) {
+        items[items.length - 1].style.gridColumn = '2';
+      }
     };
 
     const renderProjects = (filtered, animate=true, query='') => {
       const qNorm = normalize(query);
       if (animate) projectsGrid.classList.add('filtering');
-      // Double rAF pour laisser le temps aux styles de s\'appliquer
       requestAnimationFrame(() => {
         projectsGrid.innerHTML = filtered.length
           ? filtered.map(p => cardHTML(p, qNorm)).join('')
           : '<p class="text-center text-gray-400 col-span-full">Aucune production ne correspond à votre recherche.</p>';
-        requestAnimationFrame(() => projectsGrid.classList.remove('filtering'));
+        requestAnimationFrame(() => {
+          projectsGrid.classList.remove('filtering');
+          centerLastIfRemainderOne();
+        });
       });
       live.textContent = `${filtered.length} projet${filtered.length>1?'s':''} affiché${filtered.length>1?'s':''}`;
     };
@@ -265,21 +242,24 @@
     const updateAutocomplete = (value) => {
       const v = normalize(value.trim());
       autocompleteList.innerHTML = '';
-      if (!v) { autocompleteList.classList.add('hidden'); studentSearch.setAttribute('aria-expanded', 'false'); activeSuggestion = -1; return; }
-      const suggestions = allStudentNames.filter(n => normalize(n).includes(v)).slice(0, 8);
-      if (!suggestions.length) { autocompleteList.classList.add('hidden'); studentSearch.setAttribute('aria-expanded', 'false'); activeSuggestion = -1; return; }
+      if (!v) { autocompleteList.classList.add('hidden'); studentSearch.setAttribute('aria-expanded','false'); activeSuggestion = -1; return; }
+      const suggestions = allStudentNames.filter(n => normalize(n).includes(v)).slice(0,8);
+      if (!suggestions.length) { autocompleteList.classList.add('hidden'); studentSearch.setAttribute('aria-expanded','false'); activeSuggestion = -1; return; }
       const frag = document.createDocumentFragment();
       suggestions.forEach((name, idx) => {
         const item = document.createElement('div');
         item.id = `suggestion-${idx}`;
         item.className = 'px-4 py-2 text-gray-300 hover:bg-black/20 cursor-pointer focus:bg-black/20 focus:outline-none';
-        item.textContent = name; item.role = 'option'; item.tabIndex = -1;
-        item.setAttribute('aria-selected', 'false');
-        item.addEventListener('click', () => { studentSearch.value = name; autocompleteList.classList.add('hidden'); studentSearch.setAttribute('aria-expanded', 'false'); activeSuggestion = -1; applyFilter(); });
+        item.textContent = name; item.role = 'option'; item.tabIndex = -1; item.setAttribute('aria-selected','false');
+        item.addEventListener('click', () => {
+          studentSearch.value = name;
+          autocompleteList.classList.add('hidden'); studentSearch.setAttribute('aria-expanded','false'); activeSuggestion = -1;
+          applyFilter();
+        });
         frag.appendChild(item);
       });
       autocompleteList.appendChild(frag);
-      autocompleteList.classList.remove('hidden'); studentSearch.setAttribute('aria-expanded', 'true');
+      autocompleteList.classList.remove('hidden'); studentSearch.setAttribute('aria-expanded','true');
     };
 
     const openModal = (projectId) => {
@@ -291,12 +271,9 @@
       modalTitle.textContent = project.name;
       modalBody.innerHTML = '';
 
-      const briefContainer = document.createElement('div');
-      briefContainer.className = 'bg-black/20 p-6 rounded-lg mb-8';
-      briefContainer.innerHTML = `
-        <h3 class="text-xl font-semibold text-gold mb-2">Brief du Film</h3>
-        <p class="text-base text-gray-300">${escapeHTML(project.mission)}</p>
-      `;
+      const brief = document.createElement('div');
+      brief.className = 'bg-black/20 p-6 rounded-lg mb-8';
+      brief.innerHTML = `<h3 class=\"text-xl font-semibold text-gold mb-2\">Brief du Film</h3><p class=\"text-base text-gray-300\">${escapeHTML(project.mission)}</p>`;
 
       const missionsTitle = document.createElement('h4');
       missionsTitle.className = 'text-xl font-semibold text-gold mb-2';
@@ -304,48 +281,49 @@
 
       const studentsContainer = document.createElement('div');
       const searchValue = normalize(studentSearch.value || '');
-      project.students.forEach(student => {
-        const isHighlighted = searchValue && normalize(student.name).includes(searchValue);
-        const wrapper = document.createElement('div');
-        wrapper.className = `py-4 border-b border-card last:border-b-0 -mx-6 px-6 ${isHighlighted ? 'highlight' : ''}`;
-        wrapper.innerHTML = `
-          <div class="flex items-center justify-between gap-4">
-            <p class="font-bold text-lg text-white">${escapeHTML(student.name)}</p>
-            <span class="text-sm font-medium flex-shrink-0 ${student.class === 'A' ? 'bg-red-900/50 text-red-200' : 'bg-blue-900/50 text-blue-200'} py-1 px-3 rounded-full">Classe ${student.class}</span>
+      project.students.forEach(st => {
+        const isHighlighted = searchValue && normalize(st.name).includes(searchValue);
+        const wrap = document.createElement('div');
+        wrap.className = `py-4 border-b border-card last:border-b-0 -mx-6 px-6 ${isHighlighted ? 'highlight' : ''}`;
+        wrap.innerHTML = `
+          <div class=\"flex items-center justify-between gap-4\">
+            <p class=\"font-bold text-lg text-white\">${escapeHTML(st.name)}</p>
+            <span class=\"text-sm font-medium flex-shrink-0 ${'${'}st.class === 'A' ? 'bg-red-900/50 text-red-200' : 'bg-blue-900/50 text-blue-200'${'}'} py-1 px-3 rounded-full\">Classe ${'${'}st.class${'}'}</span>
           </div>
-          <div class="text-gray-400 mt-2">
-            <strong class="text-gold block font-medium">${escapeHTML(student.mission.title)}</strong>
-            <p class="text-sm mt-1 text-gray-300">${escapeHTML(student.mission.description)}</p>
-          </div>
-        `;
-        studentsContainer.appendChild(wrapper);
+          <div class=\"text-gray-400 mt-2\">
+            <strong class=\"text-gold block font-medium\">${escapeHTML(st.mission.title)}</strong>
+            <p class=\"text-sm mt-1 text-gray-300\">${escapeHTML(st.mission.description)}</p>
+          </div>`;
+        studentsContainer.appendChild(wrap);
       });
 
-      modalBody.appendChild(briefContainer);
+      modalBody.appendChild(brief);
       modalBody.appendChild(missionsTitle);
       modalBody.appendChild(studentsContainer);
 
-      modal.classList.remove('invisible', 'opacity-0');
+      modal.classList.remove('invisible','opacity-0');
       $$('.modal-content', modal).classList.remove('-translate-y-10');
 
-      // Focus trap: focus le premier bouton/élément actionnable
       const focusables = $$$('a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])', modal);
       if (focusables.length) focusables[0].focus();
     };
 
     const closeModal = () => {
       document.body.style.overflow = '';
-      modal.classList.add('invisible', 'opacity-0');
+      modal.classList.add('invisible','opacity-0');
       $$('.modal-content', modal).classList.add('-translate-y-10');
       if (previouslyFocusedElement) previouslyFocusedElement.focus();
     };
 
+    // Fermeture au clic en dehors de la modale + blocage de la propagation interne
+    modal.addEventListener('click', (e) => {
+      const content = $$('.modal-content', modal);
+      if (!content.contains(e.target)) closeModal();
+    });
+    $$('.modal-content', modal).addEventListener('click', (e) => e.stopPropagation());
+
     const handleKeydown = (e) => {
-      // Raccourci pour focaliser la recherche
-      if (e.key === '/' && document.activeElement !== studentSearch && !e.ctrlKey && !e.metaKey && !e.altKey) {
-        e.preventDefault(); studentSearch.focus(); return;
-      }
-      // Focus trap modal
+      if (e.key === '/' && document.activeElement !== studentSearch && !e.ctrlKey && !e.metaKey && !e.altKey) { e.preventDefault(); studentSearch.focus(); return; }
       if (modal.classList.contains('invisible')) return;
       const focusables = Array.from($$$('a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])', modal));
       if (!focusables.length) return;
@@ -356,7 +334,7 @@
       } else if (e.key === 'Escape') { closeModal(); }
     };
 
-    // Event delegation: ouverture modale via click / clavier
+    // Delegation cartes
     projectsGrid.addEventListener('click', (e) => {
       const card = e.target.closest('[data-project-id]');
       if (card) openModal(card.dataset.projectId);
@@ -367,8 +345,7 @@
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(card.dataset.projectId); }
     });
 
-    modalClose.addEventListener('click', closeModal);
-    modal.addEventListener('click', (e) => { if (e.target === e.currentTarget) closeModal(); });
+    $$('#modal-close').addEventListener('click', closeModal);
     document.addEventListener('keydown', handleKeydown, { passive: false });
 
     const applyFilter = () => {
@@ -383,28 +360,24 @@
     const debouncedApply = debounce(applyFilter, 120);
     studentSearch.addEventListener('input', debouncedApply);
     studentSearch.addEventListener('keydown', (e) => {
-      // Autocomplete navigation
       const opts = $$$('[role="option"]', autocompleteList);
       if (autocompleteList.classList.contains('hidden') || !opts.length) return;
-      if (e.key === 'ArrowDown') {
-        e.preventDefault(); activeSuggestion = (activeSuggestion + 1) % opts.length;
-      } else if (e.key === 'ArrowUp') {
-        e.preventDefault(); activeSuggestion = (activeSuggestion - 1 + opts.length) % opts.length;
-      } else if (e.key === 'Enter') {
-        if (activeSuggestion > -1) { e.preventDefault(); opts[activeSuggestion].click(); }
-        return;
-      } else if (e.key === 'Escape') {
-        autocompleteList.classList.add('hidden'); studentSearch.setAttribute('aria-expanded', 'false'); activeSuggestion = -1; return;
-      } else { activeSuggestion = -1; return; }
-      opts.forEach((el, i) => { el.classList.toggle('suggestion-active', i === activeSuggestion); el.setAttribute('aria-selected', i === activeSuggestion ? 'true' : 'false'); });
+      if (e.key === 'ArrowDown') { e.preventDefault(); activeSuggestion = (activeSuggestion + 1) % opts.length; }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); activeSuggestion = (activeSuggestion - 1 + opts.length) % opts.length; }
+      else if (e.key === 'Enter') { if (activeSuggestion > -1) { e.preventDefault(); opts[activeSuggestion].click(); } return; }
+      else if (e.key === 'Escape') { autocompleteList.classList.add('hidden'); studentSearch.setAttribute('aria-expanded','false'); activeSuggestion = -1; return; }
+      else { activeSuggestion = -1; return; }
+      opts.forEach((el,i)=>{ el.classList.toggle('suggestion-active', i===activeSuggestion); el.setAttribute('aria-selected', i===activeSuggestion ? 'true':'false'); });
       studentSearch.setAttribute('aria-activedescendant', opts[activeSuggestion].id);
     });
 
     document.addEventListener('click', (e) => {
       if (!e.target.closest('#student-search') && !e.target.closest('#autocomplete-list')) {
-        autocompleteList.classList.add('hidden'); studentSearch.setAttribute('aria-expanded', 'false'); activeSuggestion = -1;
+        autocompleteList.classList.add('hidden'); studentSearch.setAttribute('aria-expanded','false'); activeSuggestion = -1;
       }
     }, { passive: true });
+
+    window.addEventListener('resize', debounce(centerLastIfRemainderOne, 150));
 
     // Initial render
     renderProjects(preIndexed, false, '');
