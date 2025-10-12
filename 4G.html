@@ -17,25 +17,29 @@
     -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
+        html {
+            scroll-behavior: smooth;
+            scrollbar-width: thin;
+            scrollbar-color: #444444 #1E1E1E;
+        }
         body {
             font-family: 'Montserrat', sans-serif;
             background-color: #121212;
             color: #EAEAEA;
-            background-image: url('https://images.unsplash.com/photo-1604975701397-1cfdf50bd745?q=80&w=1974&auto=format&fit=crop');
+            background-image: linear-gradient(rgba(18, 18, 18, 0.92), rgba(18, 18, 18, 0.92)), url('https://images.unsplash.com/photo-1604975701397-1cfdf50bd745?q=80&w=1974&auto=format&fit=crop');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
         }
         .body-overlay {
-            background-color: rgba(18, 18, 18, 0.92);
-            backdrop-filter: blur(8px);
+            background-color: rgba(18, 18, 18, 0.0);
         }
         h1, h2, h3, h4 {
             font-family: 'Playfair Display', serif;
         }
         .text-gold { color: #D4AF37; }
         .bg-card { background-color: #1E1E1E; }
-        .border-card { border-color: #333333; }
+        .border-card { border-color: #444; }
         .border-gold { border-color: #D4AF37; }
         .modal {
             transition: opacity 0.3s ease, visibility 0.3s ease;
@@ -44,7 +48,7 @@
             transition: transform 0.3s ease;
         }
         .card-hover {
-            transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+            transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, border-color 0.2s ease-out;
             border: 1px solid #333333;
             display: flex;
             flex-direction: column;
@@ -71,13 +75,27 @@
         input::placeholder {
             color: #999;
         }
-        .highlight {
+        .highlight, .suggestion-active {
             background-color: rgba(212, 175, 55, 0.15);
-            border-left: 3px solid #D4AF37;
-            border-radius: 2px;
+        }
+        .highlight {
+             border-left: 3px solid #D4AF37;
+             border-radius: 2px;
+        }
+        #projects-grid > div {
+            opacity: 1;
+            transform: scale(1);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        #projects-grid.filtering > div {
+            opacity: 0;
+            transform: scale(0.95);
         }
         @media (min-width: 1280px) {
-          #projects-grid > :nth-child(3n + 1):last-child {
+          #projects-grid:has(> :last-child:nth-child(3n + 2)) > :last-child:nth-child(3n + 1) {
+            grid-column-end: 3;
+          }
+           #projects-grid:has(> :last-child:nth-child(3n + 1)) > :last-child {
             grid-column-start: 2;
           }
         }
@@ -91,7 +109,7 @@
             <h1 class="text-5xl sm:text-7xl font-bold text-white tracking-wider">STUDIO DE PRODUCTION</h1>
             <div class="mt-4 text-lg text-gold uppercase tracking-[0.2em]">Cahier des Charges 3D</div>
             <a href="https://drive.google.com/drive/folders/1x6nghmXtweIPvZgp7DjSP-8PAH4O8iPd" target="_blank" rel="noopener noreferrer" class="mt-8 inline-block bg-transparent border border-gold text-gold font-semibold py-2 px-6 rounded-lg hover:bg-gold hover:text-black transition-colors duration-300">
-                Accéder au Drive du Projet 📁
+                Accéder au Drive du Projet <span aria-hidden="true">↗</span>
             </a>
         </header>
 
@@ -101,13 +119,13 @@
                 <div class="flex-1 bg-card p-8 rounded-xl border border-card">
                     <span class="text-6xl" aria-hidden="true">🎞️</span>
                     <h3 class="text-2xl font-bold text-white mt-4 mb-2">Film de Projet de Groupe</h3>
-                    <p class="text-gray-300"><strong class="font-semibold text-gold">Durée :</strong> 90 à 120 secondes</p>
+                    <p class="text-gray-200"><strong class="font-semibold text-gold">Durée :</strong> 90 à 120 secondes</p>
                     <p class="text-sm text-gray-400 mt-3">Racontez l'histoire de votre univers. La vidéo doit présenter l'espace complet et démontrer la synergie de vos créations.</p>
                 </div>
                 <div class="flex-1 bg-card p-8 rounded-xl border border-card">
                     <span class="text-6xl" aria-hidden="true">✨</span>
                     <h3 class="text-2xl font-bold text-white mt-4 mb-2">Votre Publicité (Spot 20-30s)</h3>
-                    <p class="text-gray-300"><strong class="font-semibold text-gold">Durée :</strong> 20 à 30 secondes</p>
+                    <p class="text-gray-200"><strong class="font-semibold text-gold">Durée :</strong> 20 à 30 secondes</p>
                     <p class="text-sm text-gray-400 mt-3">C'est votre carte de visite. Mettez en valeur votre modélisation sous son meilleur jour, en soulignant les détails et votre savoir-faire.</p>
                 </div>
             </div>
@@ -132,11 +150,11 @@
     <div id="project-modal" class="modal invisible opacity-0 fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-70 backdrop-blur-sm">
       <div class="min-h-full flex items-center justify-center p-4">
         <div class="modal-content transform -translate-y-10 bg-card w-full max-w-3xl rounded-2xl shadow-2xl flex flex-col border border-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-            <div class="p-6 border-b border-card flex justify-between items-center flex-shrink-0">
+            <div class="p-4 sm:p-6 border-b border-card flex justify-between items-center flex-shrink-0">
                 <h2 id="modal-title" class="text-2xl font-bold text-gold"></h2>
-                <button id="modal-close" class="text-gray-400 hover:text-white text-4xl leading-none" aria-label="Fermer la fenêtre">&times;</button>
+                <button id="modal-close" class="text-gray-400 hover:text-white rounded-full h-12 w-12 flex items-center justify-center text-4xl leading-none" aria-label="Fermer la fenêtre">&times;</button>
             </div>
-            <div class="p-6 overflow-y-auto">
+            <div class="p-4 sm:p-6 overflow-y-auto">
                 <div id="modal-body"></div>
             </div>
         </div>
@@ -242,7 +260,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             const projectsGrid = document.getElementById('projects-grid');
             const studentSearch = document.getElementById('student-search');
-            const searchContainer = studentSearch.parentElement;
+            const searchContainer = studentSearch.parentElement.parentElement;
             const autocompleteList = document.getElementById('autocomplete-list');
             const modal = document.getElementById('project-modal');
             const modalClose = document.getElementById('modal-close');
@@ -260,84 +278,90 @@
             };
             
             const renderProjects = (filteredProjects) => {
-                projectsGrid.innerHTML = '';
-                const searchValue = studentSearch.value.toLowerCase().trim();
+                projectsGrid.classList.add('filtering');
 
-                if (filteredProjects.length === 0) {
-                    const p = document.createElement('p');
-                    p.className = 'text-center text-gray-400 col-span-full';
-                    p.textContent = 'Aucune production ne correspond à votre recherche.';
-                    projectsGrid.appendChild(p);
-                    return;
-                }
-                filteredProjects.forEach(project => {
-                    const projectCard = document.createElement('div');
-                    projectCard.className = 'bg-card p-6 rounded-2xl cursor-pointer card-hover';
-                    projectCard.dataset.projectId = project.id;
-                    projectCard.setAttribute('role', 'button');
-                    projectCard.setAttribute('tabindex', '0');
+                setTimeout(() => {
+                    projectsGrid.innerHTML = '';
+                    const searchValue = studentSearch.value.toLowerCase().trim();
 
-                    const memberCount = project.students.length;
-
-                    const cardContent = document.createElement('div');
-                    cardContent.className = 'flex-grow';
-                    
-                    const title = document.createElement('h3');
-                    title.className = 'text-2xl font-bold text-white mb-2';
-                    title.textContent = project.name;
-
-                    const mission = document.createElement('p');
-                    mission.className = 'text-sm text-gray-400 mb-4';
-                    mission.textContent = project.mission;
-
-                    cardContent.appendChild(title);
-                    cardContent.appendChild(mission);
-
-                    const cardFooter = document.createElement('div');
-                    cardFooter.className = 'mt-auto';
-
-                    const footerLine = document.createElement('div');
-                    footerLine.className = 'flex justify-between items-center text-sm pt-4 border-t border-card';
-
-                    const memberSpan = document.createElement('span');
-                    memberSpan.className = 'font-semibold text-gray-300';
-                    memberSpan.textContent = `${memberCount} réalisateur${memberCount > 1 ? 's' : ''}`;
-
-                    const detailsSpan = document.createElement('span');
-                    detailsSpan.className = 'text-gold font-medium';
-                    detailsSpan.textContent = 'Consulter le Brief →';
-
-                    footerLine.appendChild(memberSpan);
-                    footerLine.appendChild(detailsSpan);
-                    cardFooter.appendChild(footerLine);
-
-                    if (searchValue) {
-                        const matchingStudents = project.students
-                            .filter(student => student.name.toLowerCase().includes(searchValue))
-                            .map(student => student.name);
-
-                        if (matchingStudents.length > 0) {
-                            const searchResultDiv = document.createElement('div');
-                            searchResultDiv.className = 'mt-4 pt-4 border-t border-card';
-                            
-                            const searchResultP = document.createElement('p');
-                            searchResultP.className = 'text-xs text-gray-400';
-                            searchResultP.textContent = 'Résultat pour : ';
-
-                            const searchResultSpan = document.createElement('span');
-                            searchResultSpan.className = 'font-semibold text-gold';
-                            searchResultSpan.textContent = matchingStudents.join(', ');
-
-                            searchResultP.appendChild(searchResultSpan);
-                            searchResultDiv.appendChild(searchResultP);
-                            cardFooter.appendChild(searchResultDiv);
-                        }
+                    if (filteredProjects.length === 0) {
+                        const p = document.createElement('p');
+                        p.className = 'text-center text-gray-400 col-span-full';
+                        p.textContent = 'Aucune production ne correspond à votre recherche.';
+                        projectsGrid.appendChild(p);
+                        return;
                     }
 
-                    projectCard.appendChild(cardContent);
-                    projectCard.appendChild(cardFooter);
-                    projectsGrid.appendChild(projectCard);
-                });
+                    filteredProjects.forEach(project => {
+                        const projectCard = document.createElement('div');
+                        projectCard.className = 'bg-card p-6 rounded-2xl cursor-pointer card-hover';
+                        projectCard.dataset.projectId = project.id;
+                        projectCard.setAttribute('role', 'button');
+                        projectCard.setAttribute('tabindex', '0');
+
+                        const memberCount = project.students.length;
+
+                        const cardContent = document.createElement('div');
+                        cardContent.className = 'flex-grow';
+                        
+                        const title = document.createElement('h3');
+                        title.className = 'text-2xl font-bold text-white mb-2';
+                        title.textContent = project.name;
+
+                        const mission = document.createElement('p');
+                        mission.className = 'text-sm text-gray-400 mb-4';
+                        mission.textContent = project.mission;
+
+                        cardContent.appendChild(title);
+                        cardContent.appendChild(mission);
+
+                        const cardFooter = document.createElement('div');
+                        cardFooter.className = 'mt-auto';
+
+                        const footerLine = document.createElement('div');
+                        footerLine.className = 'flex justify-between items-center text-sm pt-4 border-t border-card';
+
+                        const memberSpan = document.createElement('span');
+                        memberSpan.className = 'font-semibold text-gray-300';
+                        memberSpan.textContent = `${memberCount} réalisateur${memberCount > 1 ? 's' : ''}`;
+
+                        const detailsSpan = document.createElement('span');
+                        detailsSpan.className = 'text-gold font-medium';
+                        detailsSpan.textContent = 'Consulter le Brief →';
+
+                        footerLine.appendChild(memberSpan);
+                        footerLine.appendChild(detailsSpan);
+                        cardFooter.appendChild(footerLine);
+
+                        if (searchValue) {
+                            const matchingStudents = project.students
+                                .filter(student => student.name.toLowerCase().includes(searchValue))
+                                .map(student => student.name);
+
+                            if (matchingStudents.length > 0) {
+                                const searchResultDiv = document.createElement('div');
+                                searchResultDiv.className = 'mt-4 pt-4 border-t border-card';
+                                
+                                const searchResultP = document.createElement('p');
+                                searchResultP.className = 'text-xs text-gray-400';
+                                searchResultP.textContent = 'Résultat pour : ';
+
+                                const searchResultSpan = document.createElement('span');
+                                searchResultSpan.className = 'font-semibold text-gold';
+                                searchResultSpan.textContent = matchingStudents.join(', ');
+
+                                searchResultP.appendChild(searchResultSpan);
+                                searchResultDiv.appendChild(searchResultP);
+                                cardFooter.appendChild(searchResultDiv);
+                            }
+                        }
+
+                        projectCard.appendChild(cardContent);
+                        projectCard.appendChild(cardFooter);
+                        projectsGrid.appendChild(projectCard);
+                    });
+                    projectsGrid.classList.remove('filtering');
+                }, 300);
             };
 
             const filterAndRender = () => {
@@ -522,36 +546,40 @@
                     closeModal();
                 }
             });
-
+            
             const debouncedFilter = debounce(() => {
                 filterAndRender();
                 updateAutocomplete();
             }, 150);
 
             studentSearch.addEventListener('input', debouncedFilter);
-            
+
             let activeSuggestion = -1;
             studentSearch.addEventListener('keydown', (e) => {
                 const suggestions = autocompleteList.querySelectorAll('[role="option"]');
-                if (suggestions.length === 0) return;
+                if (autocompleteList.classList.contains('hidden')) return;
 
                 if (e.key === 'ArrowDown') {
                     e.preventDefault();
                     activeSuggestion = (activeSuggestion + 1) % suggestions.length;
-                    suggestions[activeSuggestion].focus();
+                    suggestions.forEach(s => s.classList.remove('suggestion-active'));
+                    suggestions[activeSuggestion].classList.add('suggestion-active');
                     studentSearch.setAttribute('aria-activedescendant', suggestions[activeSuggestion].id);
                 } else if (e.key === 'ArrowUp') {
                     e.preventDefault();
                     activeSuggestion = (activeSuggestion - 1 + suggestions.length) % suggestions.length;
-                    suggestions[activeSuggestion].focus();
+                    suggestions.forEach(s => s.classList.remove('suggestion-active'));
+                    suggestions[activeSuggestion].classList.add('suggestion-active');
                     studentSearch.setAttribute('aria-activedescendant', suggestions[activeSuggestion].id);
                 } else if (e.key === 'Enter') {
-                    if (activeSuggestion > -1) {
+                     if (activeSuggestion > -1) {
                         e.preventDefault();
                         suggestions[activeSuggestion].click();
                     }
                 } else if (e.key === 'Escape') {
                     autocompleteList.classList.add('hidden');
+                } else {
+                    activeSuggestion = -1;
                 }
             });
             
