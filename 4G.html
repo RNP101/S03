@@ -11,9 +11,9 @@
     <!-- Chosen Palette: Cinematic Noir -->
     <!-- Application Structure Plan: The SPA is now structured as a "Production Studio" dashboard. The cinematic, dark-themed UI enhances user immersion. The core functionality remains a filterable grid of project cards, now styled as "production slates," which open detailed modals. The removal of charts simplifies the interface, focusing entirely on the core task: finding and understanding creative missions. This thematic structure is more engaging for design students and aligns with the "cinema universe" goal. -->
     <!-- Visualization & Content Choices: 
-        - Overall Structure (Report Info -> Project structure & deliverables): Presented via a thematic dashboard layout (HTML/Tailwind) with a dark, cinematic UI. Interaction: filtering and card clicks. Justification: Creates an immersive and engaging experience tailored to the student audience.
+        - Overall Structure (Report Info -> Project structure & deliverables): Presented via a thematic dashboard layout (HTML/Tailwind) with a dark, cinematic UI, now with a background image for immersion. Interaction: filtering and card clicks. A link to project resources (Drive) is added. Justification: Creates an immersive and engaging experience tailored to the student audience, with quick access to essential resources.
         - Deliverables Section (Report Info -> Video deliverables): Goal: Inform. Presentation: Styled "briefing cards" (HTML/CSS) with thematic icons (🎞️, ✨). The personal project is reframed as "Votre Publicité" for better engagement. Justification: Clearly and thematically communicates the final goals.
-        - Group/Student Missions (Report Info -> All qualitative text): Goal: Inform. Presentation: Styled text blocks within a dark-themed modal, with clear title/description separation for readability and improved visual hierarchy. Interaction: Revealed on card click, ESC key to close, and full keyboard navigation (focus trap). Justification: Improves usability and accessibility.
+        - Group/Student Missions (Report Info -> All qualitative text): Goal: Inform. Presentation: Styled text blocks within a dark-themed modal, with clear title/description separation for readability and improved visual hierarchy. Interaction: Revealed on card click, ESC key to close, and full keyboard navigation (focus trap). Search now includes a custom autocomplete dropdown. Justification: Improves usability and accessibility.
     -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
@@ -21,6 +21,14 @@
             font-family: 'Montserrat', sans-serif;
             background-color: #121212;
             color: #EAEAEA;
+            background-image: url('https://images.unsplash.com/photo-1604975701397-1cfdf50bd745?q=80&w=1974&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        .body-overlay {
+            background-color: rgba(18, 18, 18, 0.95);
+            backdrop-filter: blur(4px);
         }
         h1, h2, h3, h4 {
             font-family: 'Playfair Display', serif;
@@ -65,15 +73,23 @@
             border-left: 3px solid #D4AF37;
             border-radius: 2px;
         }
+        @media (min-width: 1280px) {
+          #projects-grid > :nth-child(3n + 1):last-child {
+            grid-column-start: 2;
+          }
+        }
     </style>
 </head>
 <body class="antialiased">
-
+<div class="body-overlay min-h-screen">
     <div id="app-container" class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         
         <header class="text-center mb-16">
             <h1 class="text-5xl sm:text-7xl font-bold text-white tracking-wider">STUDIO DE PRODUCTION</h1>
             <div class="mt-4 text-lg text-gold uppercase tracking-[0.2em]">Cahier des Charges 3D</div>
+            <a href="https://drive.google.com/drive/folders/1tfuMH4MPVNh8amErVLtDx3wla4TvGDbM?usp=drive_link" target="_blank" rel="noopener noreferrer" class="mt-8 inline-block bg-transparent border border-gold text-gold font-semibold py-2 px-6 rounded-lg hover:bg-gold hover:text-black transition-colors duration-300">
+                Accéder au Drive du Projet 📁
+            </a>
         </header>
 
         <section id="deliverables" class="mb-16 bg-card/50 p-6 rounded-2xl border border-card">
@@ -96,10 +112,12 @@
 
         <section id="projects">
             <h2 class="text-3xl font-semibold text-gold mb-8 text-center">Les Productions en Cours</h2>
-            <div class="sticky top-0 z-10 bg-[#121212]/80 backdrop-blur-md py-4 mb-8 rounded-xl">
-                <div class="flex flex-col sm:flex-row gap-4 items-center justify-center">
-                    <input type="text" id="student-search" list="student-list" placeholder="Trouver un réalisateur..." class="w-full sm:w-96 bg-card border border-card rounded-lg py-2 px-4 leading-tight focus:outline-none focus:bg-card focus:border-gold">
-                    <datalist id="student-list"></datalist>
+            <div class="sticky top-0 z-20 bg-[#121212]/80 backdrop-blur-md py-4 mb-8 rounded-xl">
+                <div class="flex flex-col items-center justify-center">
+                    <div class="relative w-full sm:w-96">
+                        <input type="text" id="student-search" placeholder="Trouver un réalisateur..." class="w-full bg-card border border-card rounded-lg py-2 px-4 leading-tight focus:outline-none focus:bg-card focus:border-gold">
+                        <div id="autocomplete-list" class="absolute hidden w-full mt-1 bg-card border border-card rounded-lg shadow-lg max-h-60 overflow-y-auto z-30"></div>
+                    </div>
                 </div>
             </div>
 
@@ -119,7 +137,7 @@
             </div>
         </div>
     </div>
-
+</div>
     <script>
         const projectData = [
             {
@@ -219,25 +237,13 @@
         document.addEventListener('DOMContentLoaded', () => {
             const projectsGrid = document.getElementById('projects-grid');
             const studentSearch = document.getElementById('student-search');
-            const studentList = document.getElementById('student-list');
+            const autocompleteList = document.getElementById('autocomplete-list');
             const modal = document.getElementById('project-modal');
             const modalClose = document.getElementById('modal-close');
             const modalTitle = document.getElementById('modal-title');
             const modalBody = document.getElementById('modal-body');
             let previouslyFocusedElement;
-
-            const populateStudentDatalist = () => {
-                const studentNames = new Set();
-                projectData.forEach(project => {
-                    project.students.forEach(student => studentNames.add(student.name));
-                });
-                studentList.innerHTML = '';
-                [...studentNames].sort().forEach(name => {
-                    const option = document.createElement('option');
-                    option.value = name;
-                    studentList.appendChild(option);
-                });
-            };
+            const allStudentNames = [...new Set(projectData.flatMap(p => p.students.map(s => s.name)))].sort();
 
             const renderProjects = (filteredProjects) => {
                 projectsGrid.innerHTML = '';
@@ -291,6 +297,34 @@
                     );
                 }
                 renderProjects(filteredData);
+            };
+            
+            const updateAutocomplete = () => {
+                const value = studentSearch.value.toLowerCase().trim();
+                autocompleteList.innerHTML = '';
+                if (!value) {
+                    autocompleteList.classList.add('hidden');
+                    return;
+                }
+
+                const suggestions = allStudentNames.filter(name => name.toLowerCase().includes(value));
+                
+                if (suggestions.length > 0) {
+                    suggestions.forEach(name => {
+                        const item = document.createElement('div');
+                        item.className = 'px-4 py-2 text-gray-300 hover:bg-black/20 cursor-pointer';
+                        item.textContent = name;
+                        item.addEventListener('click', () => {
+                            studentSearch.value = name;
+                            autocompleteList.classList.add('hidden');
+                            filterAndRender();
+                        });
+                        autocompleteList.appendChild(item);
+                    });
+                    autocompleteList.classList.remove('hidden');
+                } else {
+                    autocompleteList.classList.add('hidden');
+                }
             };
 
             const openModal = (projectId) => {
@@ -384,12 +418,22 @@
                 }
             });
 
-            studentSearch.addEventListener('input', filterAndRender);
+            studentSearch.addEventListener('input', () => {
+                filterAndRender();
+                updateAutocomplete();
+            });
+            
+            document.addEventListener('click', (e) => {
+                if (!studentSearch.contains(e.target) && !autocompleteList.contains(e.target)) {
+                    autocompleteList.classList.add('hidden');
+                }
+            });
+
             document.addEventListener('keydown', handleKeyboardNavigation);
             
-            populateStudentDatalist();
             renderProjects(projectData);
         });
     </script>
+</div>
 </body>
 </html>
