@@ -100,17 +100,7 @@
             <h2 class="text-3xl font-semibold text-gold mb-8 text-center">Les Productions en Cours</h2>
             <div class="sticky top-0 z-10 bg-[#121212]/80 backdrop-blur-md py-4 mb-8 rounded-xl">
                 <div class="flex flex-col sm:flex-row gap-4 items-center justify-center">
-                    <div class="relative w-full sm:w-auto">
-                         <select id="class-filter" class="w-full sm:w-48 appearance-none bg-card border border-card rounded-lg py-2 px-4 pr-8 leading-tight focus:outline-none focus:bg-card focus:border-gold">
-                            <option value="all">Toutes les classes</option>
-                            <option value="A">Classe A</option>
-                            <option value="B">Classe B</option>
-                        </select>
-                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
-                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
-                        </div>
-                    </div>
-                    <input type="text" id="student-search" placeholder="Trouver un réalisateur..." class="w-full sm:w-64 bg-card border border-card rounded-lg py-2 px-4 leading-tight focus:outline-none focus:bg-card focus:border-gold">
+                    <input type="text" id="student-search" placeholder="Trouver un réalisateur..." class="w-full sm:w-96 bg-card border border-card rounded-lg py-2 px-4 leading-tight focus:outline-none focus:bg-card focus:border-gold">
                 </div>
             </div>
 
@@ -249,7 +239,6 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             const projectsGrid = document.getElementById('projects-grid');
-            const classFilter = document.getElementById('class-filter');
             const studentSearch = document.getElementById('student-search');
             const modal = document.getElementById('project-modal');
             const modalClose = document.getElementById('modal-close');
@@ -300,18 +289,15 @@
             };
 
             const filterAndRender = () => {
-                const classValue = classFilter.value;
                 const searchValue = studentSearch.value.toLowerCase().trim();
                 
-                let filteredData = projectData.filter(project => {
-                    const studentsInClass = project.students.some(student => classValue === 'all' || student.class === classValue);
-                    const studentMatchesSearch = project.students.some(student => student.name.toLowerCase().includes(searchValue));
-                    
-                    if (searchValue) {
-                        return studentMatchesSearch && studentsInClass;
-                    }
-                    return studentsInClass;
-                });
+                let filteredData = projectData;
+
+                if (searchValue) {
+                    filteredData = projectData.filter(project => 
+                        project.students.some(student => student.name.toLowerCase().includes(searchValue))
+                    );
+                }
                 
                 renderProjects(filteredData);
             };
@@ -361,7 +347,6 @@
                 }
             });
 
-            classFilter.addEventListener('change', filterAndRender);
             studentSearch.addEventListener('input', filterAndRender);
 
             renderProjects(projectData);
