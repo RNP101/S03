@@ -13,7 +13,7 @@
     <!-- Visualization & Content Choices: 
         - Overall Structure (Report Info -> Project structure & deliverables): Presented via a thematic dashboard layout (HTML/Tailwind) with a dark, cinematic UI, now with a background image for immersion. Interaction: filtering and card clicks. A link to project resources (Drive) is added. Justification: Creates an immersive and engaging experience tailored to the student audience, with quick access to essential resources.
         - Deliverables Section (Report Info -> Video deliverables): Goal: Inform. Presentation: Styled "briefing cards" (HTML/CSS) with thematic icons (🎞️, ✨). The personal project is reframed as "Votre Publicité" for better engagement. Justification: Clearly and thematically communicates the final goals.
-        - Group/Student Missions (Report Info -> All qualitative text): Goal: Inform. Presentation: Styled text blocks within a dark-themed modal, with clear title/description separation for readability and improved visual hierarchy. Interaction: Revealed on card click, ESC key to close, and full keyboard navigation (focus trap). Search now includes a custom autocomplete dropdown. Justification: Improves usability and accessibility.
+        - Group/Student Missions (Report Info -> All qualitative text): Goal: Inform. Presentation: Styled text blocks within a dark-themed modal, with clear title/description separation for readability and improved visual hierarchy. Card briefs are now fully visible. Interaction: Revealed on card click, ESC key to close, and full keyboard navigation (focus trap). Search now includes a custom autocomplete dropdown. Justification: Improves usability and accessibility.
     -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
@@ -46,6 +46,8 @@
         .card-hover {
             transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
             border: 1px solid #333333;
+            display: flex;
+            flex-direction: column;
         }
         .card-hover:hover {
             transform: translateY(-5px);
@@ -182,7 +184,7 @@
                     { name: "Tryphose", class: "B", mission: { title: "Le Totem Urbain : Bar & DJ Booth", description: "Créez une structure centrale (type container/échafaudage) qui sert à la fois de bar principal et de cabine surélevée pour le DJ. Elle doit être un point de ralliement visible." } },
                     { name: "Sarah", class: "A", mission: { title: "Le Stand de Pâtisserie Urbaine", description: "Imaginez un kiosque ou un food truck au design créatif, attractif et hyper-fonctionnel dans un espace réduit." } },
                     { name: "Grâce", class: "B", mission: { title: "La Cuisine de Battle Ouverte", description: "Concevez le \"ring\" des chefs. L'ergonomie et l'efficacité sont essentielles pour la performance sous pression, tout en offrant un spectacle au public." } },
-                    { name: "Stessy", class: "A", mission: { title: "La Scène DJ / Événementiel", description: "Modélisez une petite scène à fort impact visuel pour l'animateur et le DJ, équipée pour chauffer la foule." } }
+                    { name: "Stessy", class: "A", mission: { title: "La Scène des Artistes Urbains", description: "Concevez une petite scène modulable pour des performances live (musiciens, slameurs, danseurs). Pensez à l'éclairage et à un design qui peut s'adapter à différents types d'artistes pour animer l'arène." } }
                 ]
             },
             {
@@ -214,7 +216,7 @@
                 ]
             },
             {
-                id: 9, name: "Sème City Open Park (SCOP) en PARC OUVERT", mission: "Ce projet doit être pensé comme ayant un impact réel. Votre mission est de proposer une vision qui transforme un espace public en un lieu de vie plus urbain, fonctionnel et esthétique. Chaque élément doit être pensé pour l'usage des citoyens, la durabilité et l'identité de la ville.",
+                id: 9, name: "Sème City OPEN PARK (SCOP)", mission: "Ce projet doit être pensé comme ayant un impact réel. Votre mission est de proposer une vision qui transforme un espace public en un lieu de vie plus urbain, fonctionnel et esthétique. Chaque élément doit être pensé pour l'usage des citoyens, la durabilité et l'identité de la ville.",
                 students: [
                     { name: "Ashley", class: "B", mission: { title: "La Toiture Dansante & Intelligente", description: "Créez une structure d'ombrage sculpturale. Le défi est de concevoir des formes organiques qui sont aussi fonctionnelles, en intégrant un système de récupération d'eau de pluie." } },
                     { name: "Korel", class: "A", mission: { title: "L'Abri Urbain Modulaire", description: "Concevez des abris qui soient des points de rencontre confortables et sécurisants, avec un design moderne et adaptable à différents lieux du parc." } },
@@ -276,13 +278,17 @@
                     }
                     
                     projectCard.innerHTML = `
-                        <h3 class="text-2xl font-bold text-white mb-2">${project.name}</h3>
-                        <p class="text-sm text-gray-400 mb-4 h-12 overflow-hidden">${project.mission}</p>
-                        <div class="flex justify-between items-center text-sm">
-                            <span class="font-semibold text-gray-300">${memberCount} réalisateur${memberCount > 1 ? 's' : ''}</span>
-                            <span class="text-gold font-medium">Consulter le Brief →</span>
+                        <div class="flex-grow">
+                            <h3 class="text-2xl font-bold text-white mb-2">${project.name}</h3>
+                            <p class="text-sm text-gray-400 mb-4">${project.mission}</p>
                         </div>
-                        ${searchResultHtml}
+                        <div class="mt-auto">
+                            <div class="flex justify-between items-center text-sm pt-4 border-t border-card">
+                                <span class="font-semibold text-gray-300">${memberCount} réalisateur${memberCount > 1 ? 's' : ''}</span>
+                                <span class="text-gold font-medium">Consulter le Brief →</span>
+                            </div>
+                            ${searchResultHtml}
+                        </div>
                     `;
                     projectsGrid.appendChild(projectCard);
                 });
