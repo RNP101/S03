@@ -49,10 +49,11 @@
             display: flex;
             flex-direction: column;
         }
-        .card-hover:hover {
+        .card-hover:hover, .card-hover:focus-visible {
             transform: translateY(-5px);
             box-shadow: 0 0 25px rgba(212, 175, 55, 0.15);
             border-color: rgba(212, 175, 55, 0.5);
+            outline: none;
         }
         ::-webkit-scrollbar {
             width: 8px;
@@ -98,13 +99,13 @@
             <h2 class="text-3xl font-semibold text-gold mb-6 text-center">Les Livrables</h2>
             <div class="flex flex-col md:flex-row justify-center items-stretch gap-8 text-center">
                 <div class="flex-1 bg-card p-8 rounded-xl border border-card">
-                    <span class="text-6xl">🎞️</span>
+                    <span class="text-6xl" aria-hidden="true">🎞️</span>
                     <h3 class="text-2xl font-bold text-white mt-4 mb-2">Film de Projet de Groupe</h3>
                     <p class="text-gray-300"><strong class="font-semibold text-gold">Durée :</strong> 90 à 120 secondes</p>
                     <p class="text-sm text-gray-400 mt-3">Racontez l'histoire de votre univers. La vidéo doit présenter l'espace complet et démontrer la synergie de vos créations.</p>
                 </div>
                 <div class="flex-1 bg-card p-8 rounded-xl border border-card">
-                    <span class="text-6xl">✨</span>
+                    <span class="text-6xl" aria-hidden="true">✨</span>
                     <h3 class="text-2xl font-bold text-white mt-4 mb-2">Votre Publicité (Spot 20-30s)</h3>
                     <p class="text-gray-300"><strong class="font-semibold text-gold">Durée :</strong> 20 à 30 secondes</p>
                     <p class="text-sm text-gray-400 mt-3">C'est votre carte de visite. Mettez en valeur votre modélisation sous son meilleur jour, en soulignant les détails et votre savoir-faire.</p>
@@ -116,9 +117,9 @@
             <h2 class="text-3xl font-semibold text-gold mb-8 text-center">Les Productions en Cours</h2>
             <div class="sticky top-0 z-20 bg-[#121212]/80 backdrop-blur-md py-4 mb-8 rounded-xl">
                 <div class="flex flex-col items-center justify-center">
-                    <div class="relative w-full sm:w-96">
-                        <input type="text" id="student-search" placeholder="Trouver un réalisateur..." class="w-full bg-card border border-card rounded-lg py-2 px-4 leading-tight focus:outline-none focus:bg-card focus:border-gold">
-                        <div id="autocomplete-list" class="absolute hidden w-full mt-1 bg-card border border-card rounded-lg shadow-lg max-h-60 overflow-y-auto z-30"></div>
+                    <div class="relative w-full sm:w-96" role="combobox" aria-expanded="false" aria-haspopup="listbox" aria-label="Recherche de réalisateur">
+                        <input type="text" id="student-search" placeholder="Trouver un réalisateur..." class="w-full bg-card border border-card rounded-lg py-2 px-4 leading-tight focus:outline-none focus:bg-card focus:border-gold" aria-autocomplete="list" aria-controls="autocomplete-list">
+                        <div id="autocomplete-list" class="absolute hidden w-full mt-1 bg-card border border-card rounded-lg shadow-lg max-h-60 overflow-y-auto z-30" role="listbox"></div>
                     </div>
                 </div>
             </div>
@@ -128,16 +129,18 @@
         </section>
     </div>
 
-    <div id="project-modal" class="modal invisible opacity-0 fixed inset-0 w-full h-full z-50 flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm p-4">
-        <div class="modal-content transform -translate-y-10 bg-card w-full max-w-3xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col border border-card">
+    <div id="project-modal" class="modal invisible opacity-0 fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-70 backdrop-blur-sm">
+      <div class="min-h-full flex items-center justify-center p-4">
+        <div class="modal-content transform -translate-y-10 bg-card w-full max-w-3xl rounded-2xl shadow-2xl flex flex-col border border-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
             <div class="p-6 border-b border-card flex justify-between items-center flex-shrink-0">
                 <h2 id="modal-title" class="text-2xl font-bold text-gold"></h2>
-                <button id="modal-close" class="text-gray-400 hover:text-white text-4xl leading-none">&times;</button>
+                <button id="modal-close" class="text-gray-400 hover:text-white text-4xl leading-none" aria-label="Fermer la fenêtre">&times;</button>
             </div>
             <div class="p-6 overflow-y-auto">
                 <div id="modal-body"></div>
             </div>
         </div>
+      </div>
     </div>
 </div>
     <script>
@@ -239,6 +242,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             const projectsGrid = document.getElementById('projects-grid');
             const studentSearch = document.getElementById('student-search');
+            const searchContainer = studentSearch.parentElement;
             const autocompleteList = document.getElementById('autocomplete-list');
             const modal = document.getElementById('project-modal');
             const modalClose = document.getElementById('modal-close');
@@ -247,49 +251,91 @@
             let previouslyFocusedElement;
             const allStudentNames = [...new Set(projectData.flatMap(p => p.students.map(s => s.name)))].sort();
 
+            const debounce = (func, delay) => {
+                let timeout;
+                return (...args) => {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(this, args), delay);
+                };
+            };
+            
             const renderProjects = (filteredProjects) => {
                 projectsGrid.innerHTML = '';
                 const searchValue = studentSearch.value.toLowerCase().trim();
 
                 if (filteredProjects.length === 0) {
-                    projectsGrid.innerHTML = `<p class="text-center text-gray-400 col-span-full">Aucune production ne correspond à votre recherche.</p>`;
+                    const p = document.createElement('p');
+                    p.className = 'text-center text-gray-400 col-span-full';
+                    p.textContent = 'Aucune production ne correspond à votre recherche.';
+                    projectsGrid.appendChild(p);
                     return;
                 }
                 filteredProjects.forEach(project => {
                     const projectCard = document.createElement('div');
                     projectCard.className = 'bg-card p-6 rounded-2xl cursor-pointer card-hover';
                     projectCard.dataset.projectId = project.id;
-                    
+                    projectCard.setAttribute('role', 'button');
+                    projectCard.setAttribute('tabindex', '0');
+
                     const memberCount = project.students.length;
 
-                    let searchResultHtml = '';
+                    const cardContent = document.createElement('div');
+                    cardContent.className = 'flex-grow';
+                    
+                    const title = document.createElement('h3');
+                    title.className = 'text-2xl font-bold text-white mb-2';
+                    title.textContent = project.name;
+
+                    const mission = document.createElement('p');
+                    mission.className = 'text-sm text-gray-400 mb-4';
+                    mission.textContent = project.mission;
+
+                    cardContent.appendChild(title);
+                    cardContent.appendChild(mission);
+
+                    const cardFooter = document.createElement('div');
+                    cardFooter.className = 'mt-auto';
+
+                    const footerLine = document.createElement('div');
+                    footerLine.className = 'flex justify-between items-center text-sm pt-4 border-t border-card';
+
+                    const memberSpan = document.createElement('span');
+                    memberSpan.className = 'font-semibold text-gray-300';
+                    memberSpan.textContent = `${memberCount} réalisateur${memberCount > 1 ? 's' : ''}`;
+
+                    const detailsSpan = document.createElement('span');
+                    detailsSpan.className = 'text-gold font-medium';
+                    detailsSpan.textContent = 'Consulter le Brief →';
+
+                    footerLine.appendChild(memberSpan);
+                    footerLine.appendChild(detailsSpan);
+                    cardFooter.appendChild(footerLine);
+
                     if (searchValue) {
                         const matchingStudents = project.students
                             .filter(student => student.name.toLowerCase().includes(searchValue))
                             .map(student => student.name);
 
                         if (matchingStudents.length > 0) {
-                            searchResultHtml = `
-                                <div class="mt-4 pt-4 border-t border-card">
-                                    <p class="text-xs text-gray-400">Résultat pour : <span class="font-semibold text-gold">${matchingStudents.join(', ')}</span></p>
-                                </div>
-                            `;
+                            const searchResultDiv = document.createElement('div');
+                            searchResultDiv.className = 'mt-4 pt-4 border-t border-card';
+                            
+                            const searchResultP = document.createElement('p');
+                            searchResultP.className = 'text-xs text-gray-400';
+                            searchResultP.textContent = 'Résultat pour : ';
+
+                            const searchResultSpan = document.createElement('span');
+                            searchResultSpan.className = 'font-semibold text-gold';
+                            searchResultSpan.textContent = matchingStudents.join(', ');
+
+                            searchResultP.appendChild(searchResultSpan);
+                            searchResultDiv.appendChild(searchResultP);
+                            cardFooter.appendChild(searchResultDiv);
                         }
                     }
-                    
-                    projectCard.innerHTML = `
-                        <div class="flex-grow">
-                            <h3 class="text-2xl font-bold text-white mb-2">${project.name}</h3>
-                            <p class="text-sm text-gray-400 mb-4">${project.mission}</p>
-                        </div>
-                        <div class="mt-auto">
-                            <div class="flex justify-between items-center text-sm pt-4 border-t border-card">
-                                <span class="font-semibold text-gray-300">${memberCount} réalisateur${memberCount > 1 ? 's' : ''}</span>
-                                <span class="text-gold font-medium">Consulter le Brief →</span>
-                            </div>
-                            ${searchResultHtml}
-                        </div>
-                    `;
+
+                    projectCard.appendChild(cardContent);
+                    projectCard.appendChild(cardFooter);
                     projectsGrid.appendChild(projectCard);
                 });
             };
@@ -310,26 +356,33 @@
                 autocompleteList.innerHTML = '';
                 if (!value) {
                     autocompleteList.classList.add('hidden');
+                    searchContainer.setAttribute('aria-expanded', 'false');
                     return;
                 }
 
                 const suggestions = allStudentNames.filter(name => name.toLowerCase().includes(value));
                 
                 if (suggestions.length > 0) {
-                    suggestions.forEach(name => {
+                    suggestions.forEach((name, index) => {
                         const item = document.createElement('div');
-                        item.className = 'px-4 py-2 text-gray-300 hover:bg-black/20 cursor-pointer';
+                        item.id = `suggestion-${index}`;
+                        item.className = 'px-4 py-2 text-gray-300 hover:bg-black/20 cursor-pointer focus:bg-black/20 focus:outline-none';
                         item.textContent = name;
+                        item.setAttribute('role', 'option');
+                        item.setAttribute('tabindex', '-1');
                         item.addEventListener('click', () => {
                             studentSearch.value = name;
                             autocompleteList.classList.add('hidden');
+                            searchContainer.setAttribute('aria-expanded', 'false');
                             filterAndRender();
                         });
                         autocompleteList.appendChild(item);
                     });
                     autocompleteList.classList.remove('hidden');
+                    searchContainer.setAttribute('aria-expanded', 'true');
                 } else {
                     autocompleteList.classList.add('hidden');
+                    searchContainer.setAttribute('aria-expanded', 'false');
                 }
             };
 
@@ -343,35 +396,72 @@
                 const searchValue = studentSearch.value.toLowerCase().trim();
                 
                 modalTitle.textContent = project.name;
+                modalBody.innerHTML = '';
+
+                const briefContainer = document.createElement('div');
+                briefContainer.className = 'bg-black/20 p-6 rounded-lg mb-8';
+
+                const briefTitle = document.createElement('h3');
+                briefTitle.className = 'text-xl font-semibold text-gold mb-2';
+                briefTitle.textContent = 'Brief du Film';
+                briefContainer.appendChild(briefTitle);
                 
-                let studentsHtml = project.students.map(student => {
+                const briefP = document.createElement('p');
+                briefP.className = 'text-base text-gray-300';
+                briefP.textContent = project.mission;
+                briefContainer.appendChild(briefP);
+
+                const missionsTitle = document.createElement('h4');
+                missionsTitle.className = 'text-xl font-semibold text-gold mb-2';
+                missionsTitle.textContent = 'Missions des Réalisateurs';
+                
+                const studentsContainer = document.createElement('div');
+                project.students.forEach(student => {
                     const isHighlighted = searchValue && student.name.toLowerCase().includes(searchValue);
-                    const highlightClass = isHighlighted ? 'highlight' : '';
+                    
+                    const studentDiv = document.createElement('div');
+                    studentDiv.className = `py-4 border-b border-card last:border-b-0 -mx-6 px-6 ${isHighlighted ? 'highlight' : ''}`;
+                    
+                    const studentHeader = document.createElement('div');
+                    studentHeader.className = 'flex items-center justify-between gap-4';
+                    
+                    const studentName = document.createElement('p');
+                    studentName.className = 'font-bold text-lg text-white';
+                    studentName.textContent = student.name;
+                    
+                    const studentClass = document.createElement('span');
+                    studentClass.className = `text-sm font-medium flex-shrink-0 ${student.class === 'A' ? 'bg-red-900/50 text-red-200' : 'bg-blue-900/50 text-blue-200'} py-1 px-3 rounded-full`;
+                    studentClass.textContent = `Classe ${student.class}`;
+                    
+                    studentHeader.appendChild(studentName);
+                    studentHeader.appendChild(studentClass);
 
-                    return `
-                    <div class="py-4 border-b border-card last:border-b-0 ${highlightClass} -mx-6 px-6">
-                        <div class="flex items-center justify-between gap-4">
-                            <p class="font-bold text-lg text-white">${student.name}</p>
-                            <span class="text-sm font-medium flex-shrink-0 ${student.class === 'A' ? 'bg-red-900/50 text-red-200' : 'bg-blue-900/50 text-blue-200'} py-1 px-3 rounded-full">Classe ${student.class}</span>
-                        </div>
-                        <div class="text-gray-400 mt-2">
-                            <strong class="text-gold block font-medium">${student.mission.title}</strong>
-                            <p class="text-sm mt-1 text-gray-300">${student.mission.description}</p>
-                        </div>
-                    </div>
-                `}).join('');
+                    const missionDiv = document.createElement('div');
+                    missionDiv.className = 'text-gray-400 mt-2';
 
-                modalBody.innerHTML = `
-                    <div class="bg-black/20 p-6 rounded-lg mb-8">
-                         <h3 class="text-xl font-semibold text-gold mb-2">Brief du Film</h3>
-                         <p class="text-base text-gray-300">${project.mission}</p>
-                    </div>
-                    <h4 class="text-xl font-semibold text-gold mb-2">Missions des Réalisateurs</h4>
-                    <div>${studentsHtml}</div>
-                `;
+                    const missionTitle = document.createElement('strong');
+                    missionTitle.className = 'text-gold block font-medium';
+                    missionTitle.textContent = student.mission.title;
+
+                    const missionDesc = document.createElement('p');
+                    missionDesc.className = 'text-sm mt-1 text-gray-300';
+                    missionDesc.textContent = student.mission.description;
+                    
+                    missionDiv.appendChild(missionTitle);
+                    missionDiv.appendChild(missionDesc);
+                    
+                    studentDiv.appendChild(studentHeader);
+                    studentDiv.appendChild(missionDiv);
+                    studentsContainer.appendChild(studentDiv);
+                });
+
+                modalBody.appendChild(briefContainer);
+                modalBody.appendChild(missionsTitle);
+                modalBody.appendChild(studentsContainer);
                 
                 modal.classList.remove('invisible', 'opacity-0');
                 modal.querySelector('.modal-content').classList.remove('-translate-y-10');
+                modal.scrollTop = 0;
                 
                 const focusableElements = modal.querySelectorAll('button');
                 focusableElements[0].focus();
@@ -411,29 +501,64 @@
                     closeModal();
                 }
             };
-
+            
             projectsGrid.addEventListener('click', (e) => {
                 const card = e.target.closest('[data-project-id]');
                 if (card) {
                     openModal(card.dataset.projectId);
                 }
             });
+            projectsGrid.addEventListener('keydown', (e) => {
+                const card = e.target.closest('[data-project-id]');
+                if (card && (e.key === 'Enter' || e.key === ' ')) {
+                    e.preventDefault();
+                    openModal(card.dataset.projectId);
+                }
+            });
 
             modalClose.addEventListener('click', closeModal);
             modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
+                if (e.target === e.currentTarget) {
                     closeModal();
                 }
             });
 
-            studentSearch.addEventListener('input', () => {
+            const debouncedFilter = debounce(() => {
                 filterAndRender();
                 updateAutocomplete();
+            }, 150);
+
+            studentSearch.addEventListener('input', debouncedFilter);
+            
+            let activeSuggestion = -1;
+            studentSearch.addEventListener('keydown', (e) => {
+                const suggestions = autocompleteList.querySelectorAll('[role="option"]');
+                if (suggestions.length === 0) return;
+
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    activeSuggestion = (activeSuggestion + 1) % suggestions.length;
+                    suggestions[activeSuggestion].focus();
+                    studentSearch.setAttribute('aria-activedescendant', suggestions[activeSuggestion].id);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    activeSuggestion = (activeSuggestion - 1 + suggestions.length) % suggestions.length;
+                    suggestions[activeSuggestion].focus();
+                    studentSearch.setAttribute('aria-activedescendant', suggestions[activeSuggestion].id);
+                } else if (e.key === 'Enter') {
+                    if (activeSuggestion > -1) {
+                        e.preventDefault();
+                        suggestions[activeSuggestion].click();
+                    }
+                } else if (e.key === 'Escape') {
+                    autocompleteList.classList.add('hidden');
+                }
             });
             
             document.addEventListener('click', (e) => {
-                if (!studentSearch.contains(e.target) && !autocompleteList.contains(e.target)) {
+                if (!searchContainer.contains(e.target)) {
                     autocompleteList.classList.add('hidden');
+                    searchContainer.setAttribute('aria-expanded', 'false');
                 }
             });
 
