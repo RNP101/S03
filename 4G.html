@@ -337,7 +337,7 @@
                 const project = projectData.find(p => p.id == projectId);
                 if (!project) return;
                 
-                document.body.classList.add('overflow-hidden');
+                document.body.style.overflow = 'hidden';
                 previouslyFocusedElement = document.activeElement;
 
                 const searchValue = studentSearch.value.toLowerCase().trim();
@@ -378,7 +378,7 @@
             };
 
             const closeModal = () => {
-                document.body.classList.remove('overflow-hidden');
+                document.body.style.overflow = '';
                 modal.classList.add('invisible', 'opacity-0');
                 modal.querySelector('.modal-content').classList.add('-translate-y-10');
                 if (previouslyFocusedElement) {
