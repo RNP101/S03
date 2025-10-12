@@ -13,7 +13,7 @@
     <!-- Visualization & Content Choices: 
         - Overall Structure (Report Info -> Project structure & deliverables): Presented via a thematic dashboard layout (HTML/Tailwind) with a dark, cinematic UI. Interaction: filtering and card clicks. Justification: Creates an immersive and engaging experience tailored to the student audience.
         - Deliverables Section (Report Info -> Video deliverables): Goal: Inform. Presentation: Styled "briefing cards" (HTML/CSS) with thematic icons (🎞️, ✨). The personal project is reframed as "Votre Publicité" for better engagement. Justification: Clearly and thematically communicates the final goals.
-        - Group/Student Missions (Report Info -> All qualitative text): Goal: Inform. Presentation: Styled text blocks within a dark-themed modal. Interaction: Revealed on card click. Justification: Hides detailed information by default, allowing users to drill down into their specific "production brief."
+        - Group/Student Missions (Report Info -> All qualitative text): Goal: Inform. Presentation: Styled text blocks within a dark-themed modal, with clear title/description separation for readability. Interaction: Revealed on card click. Justification: Hides detailed information by default, allowing users to drill down into their specific "production brief."
     -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
@@ -60,12 +60,9 @@
         input::placeholder {
             color: #888;
         }
-        select {
-            color: #EAEAEA;
-        }
-        option {
-            background-color: #1E1E1E;
-            color: #EAEAEA;
+        .highlight {
+            background-color: rgba(212, 175, 55, 0.2);
+            border-left: 3px solid #D4AF37;
         }
     </style>
 </head>
@@ -124,115 +121,95 @@
     <script>
         const projectData = [
             {
-                id: 1,
-                name: "The Nexus: Multi-Verse Library",
-                mission: "Créez un sanctuaire immersif pour les fans de fiction. Chaque zone thématique doit transporter le visiteur dans son univers favori grâce à un design (architecture, mobilier, lumière) qui raconte une histoire.",
+                id: 1, name: "The Nexus: Multi-Verse Library", mission: "Créez un sanctuaire immersif pour les fans de fiction. Chaque zone thématique doit transporter le visiteur dans son univers favori grâce à un design (architecture, mobilier, lumière) qui raconte une histoire.",
                 students: [
-                    { name: "Rayane", class: "B", mission: "Le Trône de la Marionnettiste : Modélisez un fauteuil de lecture sculptural pour la zone Manwha. Ce doit être une œuvre d'art évoquant pouvoir et élégance, qui invite à l'immersion." },
-                    { name: "Erudice", class: "B", mission: "Le Sanctuaire Otaku : Imaginez un système de lecture modulaire sous forme d'alcôves ou de cocons personnalisés, où chaque niche est dédiée à une série culte." },
-                    { name: "Pascal", class: "A", mission: "La Station de Gaming Immersive : Intégrez un setup de jeu complet dans une bibliothèque, en soignant la gestion des câbles, l'éclairage et les supports pour figurines." },
-                    { name: "Jennifer", class: "B", mission: "La Porte des Mondes : Concevez l'entrée principale du Nexus. Qu'il s'agisse d'une arche ou d'une bibliothèque-portail, sa structure doit suggérer le passage entre les univers." }
+                    { name: "Rayane", class: "B", mission: { title: "Le Trône de la Marionnettiste", description: "Modélisez un fauteuil de lecture sculptural pour la zone Manwha. Ce doit être une œuvre d'art évoquant pouvoir et élégance, qui invite à l'immersion." } },
+                    { name: "Erudice", class: "B", mission: { title: "Le Sanctuaire Otaku", description: "Imaginez un système de lecture modulaire sous forme d'alcôves ou de cocons personnalisés, où chaque niche est dédiée à une série culte." } },
+                    { name: "Pascal", class: "A", mission: { title: "La Station de Gaming Immersive", description: "Intégrez un setup de jeu complet dans une bibliothèque, en soignant la gestion des câbles, l'éclairage et les supports pour figurines." } },
+                    { name: "Jennifer", class: "B", mission: { title: "La Porte des Mondes", description: "Concevez l'entrée principale du Nexus. Qu'il s'agisse d'une arche ou d'une bibliothèque-portail, sa structure doit suggérer le passage entre les univers." } }
                 ]
             },
             {
-                id: 2,
-                name: "Fourth Gen Studio",
-                mission: "Imaginez un laboratoire créatif où les outils physiques et les œuvres numériques fusionnent. L'espace doit être modulable et inspirant, avec une architecture qui participe elle-même au processus de création.",
+                id: 2, name: "Fourth Gen Studio", mission: "Imaginez un laboratoire créatif où les outils physiques et les œuvres numériques fusionnent. L'espace doit être modulable et inspirant, avec une architecture qui participe elle-même au processus de création.",
                 students: [
-                    { name: "Achabys", class: "B", mission: "L'Installation Cinétique Murale : Au-delà d'un simple mur, il s'agit de créer une surface \"vivante\". Les panneaux rotatifs doivent permettre de jouer avec la lumière et la texture, transformant une projection 3D statique en une expérience dynamique et interactive." },
-                    { name: "Rolyx", class: "A", mission: "Le Poste de Rendu \"Think Outside the Box\" : Concevoir le poste de travail ultime pour un artiste numérique, en alliant une ergonomie parfaite à une esthétique futuriste et audacieuse." },
-                    { name: "Duamel", class: "B", mission: "Le Mur d'Inspiration Modulable : Imaginer un système qui permette d'afficher et d'organiser le chaos créatif. Il doit être à la fois fonctionnel (magnétique, modulable) et esthétique, devenant une composition artistique en soi, qui évolue au fil des projets." },
-                    { name: "Lois", class: "B", mission: "L'Autel des Sens : Modéliser les éléments qui créent l'atmosphère. Le diffuseur de parfum ne doit pas être un simple objet, mais une sculpture. Le système d'éclairage doit permettre de sculpter l'espace pour mettre en valeur le sujet photographié." }
+                    { name: "Achabys", class: "B", mission: { title: "L'Installation Cinétique Murale", description: "Créez une surface murale \"vivante\" avec des panneaux rotatifs. Votre installation doit permettre de jouer avec la lumière et la texture pour animer les projections 3D." } },
+                    { name: "Rolyx", class: "A", mission: { title: "Le Poste de Rendu \"Think Outside the Box\"", description: "Concevez le poste de travail ultime pour un artiste numérique, en alliant une ergonomie parfaite à une esthétique futuriste et audacieuse." } },
+                    { name: "Duamel", class: "B", mission: { title: "Le Mur d'Inspiration Modulable", description: "Proposez un système d'affichage (magnétique, modulable) à la fois fonctionnel et esthétique, qui devient une composition artistique évolutive." } },
+                    { name: "Lois", class: "B", mission: { title: "L'Autel des Sens", description: "Modélisez un diffuseur de parfum sculptural et un système d'éclairage d'ambiance qui permettent de créer une atmosphère unique pour la photographie." } }
                 ]
             },
             {
-                id: 3,
-                name: "The Blockbuster Factory",
-                mission: "L'enjeu de ce projet est la transformation. Votre mission est de concevoir un espace caméléon, capable de changer radicalement d'ambiance en un temps record. La modularité, l'ingéniosité et la polyvalence du mobilier sont les clés du succès.",
+                id: 3, name: "The Blockbuster Factory", mission: "L'enjeu de ce projet est la transformation. Votre mission est de concevoir un espace caméléon, capable de changer radicalement d'ambiance en un temps record. La modularité, l'ingéniosité et la polyvalence du mobilier sont les clés du succès.",
                 students: [
-                    { name: "Iris", class: "A", mission: "Le Bar de Toretto : Plus qu'un bar, c'est un symbole. Il doit être robuste, fonctionnel et mobile. Son design industriel doit évoquer la mécanique et la vitesse, tout en étant une pièce centrale charismatique pour n'importe quelle scène de film." },
-                    { name: "Noriane", class: "A", mission: "La Loge de Star \"PDG\" : Concevoir l'espace où la transformation opère avant la scène. Le luxe, la fonctionnalité et la technologie sont primordiaux. Le miroir, l'éclairage, les rangements... tout doit être pensé pour un confort optimal et une efficacité professionnelle." },
-                    { name: "Lindsay", class: "B", mission: "Le Salon Modulable : Créer un ensemble de meubles (canapés, tables) qui sont de véritables \"briques de Lego\" pour un réalisateur. Faciles à déplacer, à reconfigurer, ils doivent permettre de créer une multitude d'ambiances différentes avec un minimum d'éléments." },
-                    { name: "Kassandra", class: "A", mission: "La Cuisine de \"Bricoleuse\" : Modéliser une cuisine qui soit belle à l'écran et pratique en coulisses. Chaque élément doit être pensé pour être filmé sous tous les angles, tout en étant fonctionnel et facilement adaptable à différents scénarios." }
+                    { name: "Iris", class: "A", mission: { title: "Le Bar de Toretto", description: "Créez un bar mobile au design industriel, inspiré de *Fast & Furious*. Il doit être robuste, fonctionnel et suffisamment charismatique pour devenir une pièce centrale." } },
+                    { name: "Noriane", class: "A", mission: { title: "La Loge de Star \"PDG\"", description: "Aménagez une loge de préparation luxueuse et high-tech. Pensez au confort et à l'efficacité professionnelle en intégrant un miroir, un éclairage et des rangements optimaux." } },
+                    { name: "Lindsay", class: "B", mission: { title: "Le Salon Modulable", description: "Concevez un ensemble de meubles (canapés, tables) comme des \"briques de Lego\" pour un réalisateur, faciles à déplacer et à reconfigurer pour créer une multitude d'ambiances." } },
+                    { name: "Kassandra", class: "A", mission: { title: "La Cuisine de \"Bricoleuse\"", description: "Modélisez une cuisine de plateau de tournage. Elle doit être esthétique sous tous les angles, fonctionnelle et facilement adaptable à différents scénarios." } }
                 ]
             },
             {
-                id: 4,
-                name: "The Power Suit Office",
-                mission: "Votre mission est de matérialiser le pouvoir, l'ambition et l'élégance dans un environnement de travail. Chaque meuble et chaque matériau doit respirer le succès et la confiance. Concevez une véritable déclaration de statut, un espace conçu pour prendre des décisions qui changent la donne.",
+                id: 4, name: "The Power Suit Office", mission: "Votre mission est de matérialiser le pouvoir, l'ambition et l'élégance dans un environnement de travail. Chaque meuble et chaque matériau doit respirer le succès et la confiance. Concevez une véritable déclaration de statut, un espace conçu pour prendre des décisions qui changent la donne.",
                 students: [
-                    { name: "Ghintia", class: "B", mission: "Le Bureau de l'Associé Principal : Concevoir la pièce maîtresse, le bureau qui impose le respect. Le choix des matériaux nobles est crucial, tout comme le design, qui doit être à la fois massif et élégant, classique mais avec une touche de modernité." },
-                    { name: "Gloria", class: "A", mission: "La Salle du Conseil d'Administration : Imaginer la table autour de laquelle se joue l'avenir. Elle doit être imposante, mais aussi favoriser la communication. La technologie (connectique, écrans) doit y être intégrée de manière invisible et intuitive." },
-                    { name: "Vianney", class: "B", mission: "Le Bureau Exécutif Augmenté : Dépasser le concept de bureau traditionnel. Il s'agit d'un poste de contrôle personnel, où le design intègre la technologie de manière fluide. Les surfaces tactiles, les rangements secrets, tout doit contribuer à une impression de puissance et d'efficacité absolue." },
-                    { name: "Ian", class: "A", mission: "La Bibliothèque Juridique Murale : Concevoir une bibliothèque qui soit un mur de savoir et de prestige. Elle n'est pas juste un rangement, mais un élément architectural qui structure l'espace et assoit l'autorité intellectuelle du lieu." }
+                    { name: "Ghintia", class: "B", mission: { title: "Le Bureau de l'Associé Principal", description: "Concevez un bureau qui impose le respect par son design et ses matériaux nobles (bois sombre, marbre). Il doit être massif mais élégant." } },
+                    { name: "Gloria", class: "A", mission: { title: "La Salle du Conseil d'Administration", description: "Imaginez une table de réunion imposante qui favorise la communication, en intégrant la technologie (connectique, écrans) de manière invisible." } },
+                    { name: "Vianney", class: "B", mission: { title: "Le Bureau Exécutif Augmenté", description: "Créez un poste de contrôle personnel où design et technologie fusionnent. Intégrez des surfaces tactiles et des rangements secrets pour une efficacité absolue." } },
+                    { name: "Ian", class: "A", mission: { title: "La Bibliothèque Juridique Murale", description: "Concevez une bibliothèque monumentale qui agit comme un mur de savoir et de prestige, structurant l'espace et affirmant l'autorité du lieu." } }
                 ]
             },
             {
-                id: 5,
-                name: "The Street Food Arena",
-                mission: "Votre objectif est de capturer l'énergie brute de la rue et de la canaliser dans un lieu vibrant et électrique. Pensez cet espace comme un festival permanent où le design industriel, fonctionnel et un peu rebelle sert de scène à la culture urbaine et culinaire.",
+                id: 5, name: "The Street Food Arena", mission: "Votre objectif est de capturer l'énergie brute de la rue et de la canaliser dans un lieu vibrant et électrique. Pensez cet espace comme un festival permanent où le design industriel, fonctionnel et un peu rebelle sert de scène à la culture urbaine et culinaire.",
                 students: [
-                    { name: "Tryphose", class: "B", mission: "Le Totem Urbain : Bar & DJ Booth : C'est le cœur battant de l'arène. Cette structure doit être visible de loin, un point de ralliement. Sa conception (inspiration container, échafaudage) doit être brute et intelligente, combinant la fonction de bar et de scène pour le DJ qui met l'ambiance." },
-                    { name: "Sarah", class: "A", mission: "Le Stand de Pâtisserie Urbaine : Imaginer un kiosque ou food truck qui soit une explosion de créativité. Il doit être attractif, hyper-fonctionnel dans un espace réduit, et son design doit refléter la modernité et l'audace des créations culinaires qu'il propose." },
-                    { name: "Grâce", class: "B", mission: "La Cuisine de Battle Ouverte : Concevoir le \"ring\" où s'affrontent les chefs. L'ergonomie et l'efficacité sont essentielles. Chaque plan de travail, chaque rangement, chaque équipement doit être pensé pour la performance sous pression, tout en offrant un spectacle au public." },
-                    { name: "Stessy", class: "A", mission: "La Scène DJ / Événementiel : Modéliser l'espace de l'animateur, celui qui commente l'action. Même si elle est petite, cette scène doit avoir un impact visuel fort et être équipée pour mettre en valeur le DJ et le présentateur qui chauffent la foule." }
+                    { name: "Tryphose", class: "B", mission: { title: "Le Totem Urbain : Bar & DJ Booth", description: "Créez une structure centrale (type container/échafaudage) qui sert à la fois de bar principal et de cabine surélevée pour le DJ. Elle doit être un point de ralliement visible." } },
+                    { name: "Sarah", class: "A", mission: { title: "Le Stand de Pâtisserie Urbaine", description: "Imaginez un kiosque ou un food truck au design créatif, attractif et hyper-fonctionnel dans un espace réduit." } },
+                    { name: "Grâce", class: "B", mission: { title: "La Cuisine de Battle Ouverte", description: "Concevez le \"ring\" des chefs. L'ergonomie et l'efficacité sont essentielles pour la performance sous pression, tout en offrant un spectacle au public." } },
+                    { name: "Stessy", class: "A", mission: { title: "La Scène DJ / Événementiel", description: "Modélisez une petite scène à fort impact visuel pour l'animateur et le DJ, équipée pour chauffer la foule." } }
                 ]
             },
             {
-                id: 6,
-                name: "The Oasis: Detox & Design",
-                mission: "Concevez une expérience de déconnexion totale à travers le design. Ce spa futuriste doit être un lieu épuré et surprenant, où la technologie est utilisée pour amplifier les sensations et apaiser l'esprit. Chaque détail doit contribuer à créer une bulle hors du temps.",
+                id: 6, name: "The Oasis: Detox & Design", mission: "Concevez une expérience de déconnexion totale à travers le design. Ce spa futuriste doit être un lieu épuré et surprenant, où la technologie est utilisée pour amplifier les sensations et apaiser l'esprit. Chaque détail doit contribuer à créer une bulle hors du temps.",
                 students: [
-                    { name: "Brunelle", class: "B", mission: "La Chaise Longue 'Nail Art' Sculpturale : Imaginez une chaise longue non pas comme un meuble, mais comme une sculpture sur laquelle on peut se reposer. L'inspiration de l'onglerie doit se traduire par des formes fluides, des courbes élégantes et une finition laquée parfaite." },
-                    { name: "Myra", class: "B", mission: "Le Mini-Booth de Coiffure Interactif : Concevez un espace privatif et luxueux pour la coiffure et le maquillage. Votre mission est de dessiner l'architecture du booth, en intégrant un miroir interactif comme pièce centrale. Pensez au mobilier (fauteuil, rangements) et à l'éclairage pour créer une expérience exclusive." },
-                    { name: "Émeraude", class: "A", mission: "Le Hammam Scénographique : Concevoir un hammam où la chaleur et la vapeur sont complétées par une expérience lumineuse et sonore. L'éclairage doit être programmable pour créer des ambiances immersives (forêt tropicale, aurore boréale...) qui évoluent pendant la séance." },
-                    { name: "Esther", class: "B", mission: "La Salle de Repos Dystopique : Aménagez un cocon de méditation où des projections à 360° transforment l'espace en un paysage mental apaisant, offrant une évasion visuelle." }
+                    { name: "Brunelle", class: "B", mission: { title: "La Chaise Longue 'Nail Art' Sculpturale", description: "Imaginez une chaise longue comme une sculpture fonctionnelle. Inspirez-vous de l'onglerie pour ses formes fluides et sa finition laquée, sans tomber dans le littéral." } },
+                    { name: "Myra", class: "B", mission: { title: "Le Mini-Booth de Coiffure Interactif", description: "Concevez un espace privatif et luxueux pour la coiffure et le maquillage. Votre mission est de dessiner l'architecture du booth, en intégrant un miroir interactif comme pièce centrale. Pensez au mobilier (fauteuil, rangements) et à l'éclairage pour créer une expérience exclusive." } },
+                    { name: "Émeraude", class: "A", mission: { title: "Le Hammam Scénographique", description: "Concevez un hammam où une expérience lumineuse et sonore complète la chaleur. L'éclairage programmable doit créer des ambiances immersives et évolutives." } },
+                    { name: "Esther", class: "B", mission: { title: "La Salle de Repos Dystopique", description: "Aménagez un cocon de méditation où des projections à 360° transforment l'espace en un paysage mental apaisant, offrant une évasion visuelle." } }
                 ]
             },
             {
-                id: 7,
-                name: "The Lore Lodge",
-                mission: "Votre défi est de créer des chambres qui racontent une histoire immersive. Le client ne doit pas simplement occuper une chambre, il doit habiter un univers. Chaque objet, du lit au balcon, doit être un chapitre de ce récit qui rend l'expérience inoubliable.",
+                id: 7, name: "The Lore Lodge", mission: "Votre défi est de créer des chambres qui racontent une histoire immersive. Le client ne doit pas simplement occuper une chambre, il doit habiter un univers. Chaque objet, du lit au balcon, doit être un chapitre de ce récit qui rend l'expérience inoubliable.",
                 students: [
-                    { name: "Elicia", class: "B", mission: "Le Lit Signature : Le lit est le cœur de la chambre. Sa structure et sa tête de lit doivent être une déclaration forte, évoquant immédiatement l'univers choisi (la rigueur des murs de SNK, la chaleur d'une case africaine, etc.) tout en restant un objet de confort." },
-                    { name: "Faghez", class: "B", mission: "Le Dressing Thématique : Concevoir un espace de rangement qui soit une extension de l'univers de la chambre. Au lieu de portes classiques, on peut imaginer des systèmes d'ouverture, des matériaux ou des motifs qui rappellent l'inspiration choisie (les sangles de SNK, des motifs tribaux, etc.)." },
-                    { name: "Loan", class: "A", mission: "L'Ouverture sur le Monde : Imaginer un balcon ou une fenêtre qui soit aussi une fenêtre sur l'imaginaire. L'intégration de VFX doit permettre d'augmenter la réalité, de projeter des éléments de l'univers choisi sur la vue, créant une expérience magique." },
-                    { name: "Lydia", class: "A", mission: "L'Assise Principale : Créer le canapé ou les fauteuils du coin salon. Ces pièces doivent être à la fois confortables et sculpturales, utilisant des formes, des textures et des couleurs qui ancrent immédiatement le visiteur dans le thème de la chambre." }
+                    { name: "Elicia", class: "B", mission: { title: "Le Lit Signature", description: "Modélisez un lit et sa tête de lit comme la déclaration principale de l'univers choisi (culture, ethnie, fiction), en alliant un design fort et un confort optimal." } },
+                    { name: "Faghez", class: "B", mission: { title: "Le Dressing Thématique", description: "Concevez un espace de rangement qui prolonge l'univers de la chambre. Utilisez des matériaux, motifs ou systèmes d'ouverture qui rappellent l'inspiration choisie." } },
+                    { name: "Loan", class: "A", mission: { title: "L'Ouverture sur le Monde", description: "Imaginez un balcon ou une fenêtre qui soit aussi une fenêtre sur l'imaginaire. Intégrez obligatoirement des VFX pour augmenter la réalité en projetant des éléments de l'univers choisi." } },
+                    { name: "Lydia", class: "A", mission: { title: "L'Assise Principale", description: "Créez les fauteuils ou le canapé du coin salon. Leurs formes, textures et couleurs doivent être sculpturales et ancrer immédiatement le visiteur dans le thème de la chambre." } }
                 ]
             },
             {
-                id: 8,
-                name: "The Mind Retreat",
-                mission: "Votre objectif est de concevoir un refuge pour l'esprit, un lieu de reconnexion avec soi-même et la nature. L'architecture doit être humble et au service du bien-être, en privilégiant la lumière naturelle, les matériaux bruts et la vue sur l'extérieur.",
+                id: 8, name: "The Mind Retreat", mission: "Votre objectif est de concevoir un refuge pour l'esprit, un lieu de reconnexion avec soi-même et la nature. L'architecture doit être humble et au service du bien-être, en privilégiant la lumière naturelle, les matériaux bruts et la vue sur l'extérieur.",
                 students: [
-                    { name: "Coralie", class: "B", mission: "La Bibliothèque Personnalisée : Au-delà du rangement, cette bibliothèque doit être une invitation à la découverte. Imaginez un système où l'éclairage met en valeur certains livres, ou des modules qui peuvent se reconfigurer pour créer des assises de lecture." },
-                    { name: "Ruth A.", class: "B", mission: "Le Chevalet de Peinture face à la Mer : Créer l'espace de création ultime pour un peintre. Il doit être minimaliste pour ne pas distraire, mais chaque élément (chevalet, siège, rangement pour le matériel) doit être pensé comme un bel objet fonctionnel, en parfaite harmonie avec le paysage." },
-                    { name: "Jessica", class: "A", mission: "Le Mur Végétal Intérieur/Extérieur : Concevoir une transition douce entre l'intérieur et l'extérieur. Le mur végétal ne doit pas être juste un décor, mais un écosystème qui semble entrer dans la pièce, renforçant le sentiment de communion avec la nature." },
-                    { name: "Ronelle", class: "A", mission: "Le Lit-Nid de Lecture : Imaginer le lit non pas comme un meuble pour dormir, mais comme un cocon pour s'évader. Confortable, enveloppant, avec un éclairage intégré et des rangements pour les livres, il doit être le refuge parfait pour des heures de lecture." },
-                    { name: "Marie T.", class: "A", mission: "La Scène de Création : Concevoir une table basse qui soit un mini-atelier. Elle doit offrir une surface de travail inspirante pour des activités manuelles (bijoux) et être pensée avec un éclairage spécifique qui la transforme en un point focal créatif dans la pièce." }
+                    { name: "Coralie", class: "B", mission: { title: "La Bibliothèque Personnalisée", description: "Imaginez une bibliothèque qui invite à la découverte, avec un éclairage qui met en valeur les livres ou des modules reconfigurables en assises." } },
+                    { name: "Ruth A.", class: "B", mission: { title: "Le Chevalet de Peinture face à la Mer", description: "Créez un espace de création minimaliste où chaque élément (chevalet, siège, rangement) est un bel objet fonctionnel en harmonie avec le paysage." } },
+                    { name: "Jessica", class: "A", mission: { title: "Le Mur Végétal Intérieur/Extérieur", description: "Concevez une transition douce entre l'intérieur et la nature avec un mur de plantes qui semble entrer dans la pièce." } },
+                    { name: "Ronelle", class: "A", mission: { title: "Le Lit-Nid de Lecture", description: "Imaginez un lit non pas pour dormir, mais pour s'évader. Confortable, enveloppant, avec éclairage et rangements intégrés, ce doit être le refuge parfait pour lire." } },
+                    { name: "Marie T.", class: "A", mission: { title: "La Scène de Création", description: "Concevez une table basse comme un mini-atelier, avec une surface de travail inspirante et un éclairage spécifique qui en fait un point focal créatif." } }
                 ]
             },
             {
-                id: 9,
-                name: "Sème City Open Park (SCOP)",
-                mission: "Ce projet a un impact réel. Votre mission est de proposer une vision qui transforme un espace public en un lieu de vie plus agréable, fonctionnel et esthétique. Chaque élément doit être pensé pour l'usage des citoyens, la durabilité et l'identité de la ville.",
+                id: 9, name: "Sème City Open Park (SCOP)", mission: "Ce projet a un impact réel. Votre mission est de proposer une vision qui transforme un espace public en un lieu de vie plus agréable, fonctionnel et esthétique. Chaque élément doit être pensé pour l'usage des citoyens, la durabilité et l'identité de la ville.",
                 students: [
-                    { name: "Ashley", class: "B", mission: "La Toiture Dansante & Intelligente : Créer une structure qui offre de l'ombre tout en étant une sculpture. Le défi est de concevoir des formes organiques qui sont non seulement belles, mais aussi fonctionnelles, en intégrant un système de récupération d'eau qui irrigue les plantes alentour." },
-                    { name: "Korel", class: "A", mission: "L'Abri Urbain Modulaire : Concevoir des abris qui soient plus que de simples toits. Ils doivent être des points de rencontre, des espaces de repos confortables et sécurisants, dont le design moderne et modulable peut s'adapter à différents endroits du parc." },
-                    { name: "Lidwine", class: "A", mission: "Le Mobilier Institutionnel : Imaginez des bancs, des poubelles, des bornes d'information qui ne soient pas juste fonctionnels, mais qui participent à l'identité visuelle du parc. Le design doit être robuste, ergonomique et porter une signature esthétique forte." },
-                    { name: "Shaneen", class: "A", mission: "L'Aire de Jeux \"Kawaii\" : Créer une aire de jeux qui stimule l'imagination et la sécurité. L'esthétique \"Kawaii\" doit se traduire par des formes douces, des couleurs vives et des structures de jeu qui sont à la fois amusantes, originales et conformes aux normes de sécurité." }
+                    { name: "Ashley", class: "B", mission: { title: "La Toiture Dansante & Intelligente", description: "Créez une structure d'ombrage sculpturale. Le défi est de concevoir des formes organiques qui sont aussi fonctionnelles, en intégrant un système de récupération d'eau de pluie." } },
+                    { name: "Korel", class: "A", mission: { title: "L'Abri Urbain Modulaire", description: "Concevez des abris qui soient des points de rencontre confortables et sécurisants, avec un design moderne et adaptable à différents lieux du parc." } },
+                    { name: "Lidwine", class: "A", mission: { title: "Le Mobilier Institutionnel", description: "Imaginez des bancs, poubelles et bornes d'information qui participent à l'identité visuelle du parc par un design robuste, ergonomique et esthétique." } },
+                    { name: "Shaneen", class: "A", mission: { title: "L'Aire de Jeux \"Kawaii\"", description: "Créez une aire de jeux qui stimule l'imagination en toute sécurité, avec des formes douces, des couleurs vives et des structures originales." } }
                 ]
             },
             {
-                id: 10,
-                name: "The Kinetic Stage",
-                mission: "Pensez ce studio comme une scène de théâtre pour la création. L'espace doit se métamorphoser selon les besoins (shooting, atelier, showroom). Le mobilier est mobile, transformable et se déploie pour s'adapter à chaque projet créatif.",
+                id: 10, name: "The Kinetic Stage", mission: "Pensez ce studio comme une scène de théâtre pour la création. L'espace doit se métamorphoser selon les besoins (shooting, atelier, showroom). Le mobilier est mobile, transformable et se déploie pour s'adapter à chaque projet créatif.",
                 students: [
-                    { name: "Zirwath", class: "B", mission: "Le portant à vêtements sculptural : Réinventez le portant pour qu'il soit une pièce de design qui les met en valeur. Sa mobilité et sa modularité sont essentielles." },
-                    { name: "Aubine", class: "A", mission: "Le miroir sur pied \"filaire\" : Concevez un miroir léger et poétique, inspiré de vos tableaux filaires, avec une structure fine, élégante et facile à déplacer." },
-                    { name: "Maëlys", class: "A", mission: "La table de création \"rustique minimaliste\" : Imaginez une grande table de travail en matériaux bruts, conçue intelligemment pour pouvoir se diviser en plusieurs postes indépendants." },
-                    { name: "Tiffany (Boni)", class: "A", mission: "Le salon d'accueil modulable : Créez un ensemble de sièges pour l'accueil qui puisse se reconfigurer facilement, passant d'une zone d'attente à un espace de brainstorming." },
-                    { name: "Roxane", class: "A", mission: "La Station d'Écoute Rétro-Kinetic : Concevez un meuble qui cache et révèle une platine vinyle. Le défi est de modéliser le mécanisme d'ouverture, alliant bois rétro et mouvement cinétique." }
+                    { name: "Zirwath", class: "B", mission: { title: "Le portant à vêtements sculptural", description: "Réinventez le portant pour qu'il soit une pièce de design qui les met en valeur. Sa mobilité et sa modularité sont essentielles." } },
+                    { name: "Aubine", class: "A", mission: { title: "Le miroir sur pied \"filaire\"", description: "Concevez un miroir léger et poétique, inspiré de vos tableaux filaires, avec une structure fine, élégante et facile à déplacer." } },
+                    { name: "Maëlys", class: "A", mission: { title: "La table de création \"rustique minimaliste\"", description: "Imaginez une grande table de travail en matériaux bruts, conçue intelligemment pour pouvoir se diviser en plusieurs postes indépendants." } },
+                    { name: "Tiffany (Boni)", class: "A", mission: { title: "Le salon d'accueil modulable", description: "Créez un ensemble de sièges pour l'accueil qui puisse se reconfigurer facilement, passant d'une zone d'attente à un espace de brainstorming." } },
+                    { name: "Roxane", class: "A", mission: { title: "La Station d'Écoute Rétro-Kinetic", description: "Concevez un meuble qui cache et révèle une platine vinyle. Le défi est de modéliser le mécanisme d'ouverture, alliant bois rétro et mouvement cinétique." } }
                 ]
             }
         ];
@@ -305,18 +282,27 @@
             const openModal = (projectId) => {
                 const project = projectData.find(p => p.id == projectId);
                 if (!project) return;
+
+                const searchValue = studentSearch.value.toLowerCase().trim();
                 
                 modalTitle.textContent = project.name;
                 
-                let studentsHtml = project.students.map(student => `
-                    <div class="py-4 border-b border-card last:border-b-0">
+                let studentsHtml = project.students.map(student => {
+                    const isHighlighted = searchValue && student.name.toLowerCase().includes(searchValue);
+                    const highlightClass = isHighlighted ? 'highlight' : '';
+
+                    return `
+                    <div class="py-4 border-b border-card last:border-b-0 ${highlightClass} -mx-4 px-4">
                         <div class="flex items-center justify-between">
                             <p class="font-bold text-lg text-white">${student.name}</p>
                             <span class="text-sm font-medium ${student.class === 'A' ? 'bg-red-900/50 text-red-300' : 'bg-blue-900/50 text-blue-300'} py-1 px-3 rounded-full">Classe ${student.class}</span>
                         </div>
-                        <p class="text-gray-400 mt-2">${student.mission}</p>
+                        <div class="text-gray-400 mt-2">
+                            <strong class="text-gold block">${student.mission.title}</strong>
+                            <p class="text-sm mt-1 text-gray-300">${student.mission.description}</p>
+                        </div>
                     </div>
-                `).join('');
+                `}).join('');
 
                 modalBody.innerHTML = `
                     <p class="text-base text-gray-300 mb-6 pb-6 border-b border-card"><strong>Brief du Film :</strong> ${project.mission}</p>
