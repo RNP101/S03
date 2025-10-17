@@ -36,6 +36,12 @@
     }
     @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
     .sr-only { position: absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+
+    /* Badges de classes */
+    .badge { display:inline-flex; align-items:center; gap:.35rem; font-weight:600; font-size:.75rem; line-height:1; padding:.35rem .55rem; border-radius:9999px; border:1px solid transparent; }
+    .badge-a { background: rgba(127, 29, 29, 0.5); color: #fecaca; border-color: #7f1d1d; }
+    .badge-b { background: rgba(30, 58, 138, 0.5); color: #bfdbfe; border-color: #1e3a8a; }
+    .badge-muted { color:#9ca3af; font-weight:500; }
   </style>
 </head>
 <body class="antialiased">
@@ -65,9 +71,19 @@
           </div>
         </div>
       </section>
-
+      <section id="faq" class="mb-16 bg-card/40 p-6 rounded-2xl border border-card">
+        <h2 class="text-3xl font-semibold text-gold mb-6 text-center">Bonnes pratiques et droits d’usage</h2>
+        <ul class="space-y-4 text-gray-300 text-sm">
+          <li><strong class="text-gold">🎵 Musique :</strong> Vous devez utiliser uniquement des musiques libres de droits ou sous licence gratuite pour montage. Des sites comme <a href="https://pixabay.com/music/" class="text-gold underline" target="_blank">Pixabay Music</a> ou <a href="https://freemusicarchive.org/" class="text-gold underline" target="_blank">Free Music Archive</a> sont autorisés.</li>
+          <li><strong class="text-gold">📸 Images et vidéos :</strong> Vous pouvez intégrer des images ou vidéos de stock pour enrichir votre film, à condition qu’elles soient libres de droits. Préférez <a href="https://www.pexels.com/fr-fr/" class="text-gold underline" target="_blank">Pexels</a> ou <a href="https://unsplash.com/" class="text-gold underline" target="_blank">Unsplash</a>.</li>
+          <li><strong class="text-gold">🎬 Contenus externes :</strong> Il est interdit d’utiliser des extraits de films, d’animes ou de musiques commerciales sans autorisation pour votre vidéo de PUBLICITE. Vous pouvez en revanche vous en inspirer pour recréer une ambiance ou une scène.</li>
+          <li><strong class="text-gold">🧑‍💻 Logiciels :</strong> Tous les rendus doivent être réalisés avec vos propres modélisations, mais vous pouvez retoucher les plans (colorimétrie, effets, etc.) dans un logiciel de montage.</li>
+          <li><strong class="text-gold">🤝 Crédits :</strong> Si vous utilisez du contenu libre, des logiciels spécifiques ou de la génération par IA, mentionnez-en la source dans le générique de fin.(Le générique de fin ne sera pas comptabilisé dans le livrable)</li>
+        </ul>
+      </section>
+      
       <section id="projects">
-        <h2 class="text-3xl font-semibold text-gold mb-8 text-center">Les Productions en Cours</h2>
+        <h2 class="text-3xl font-semibold text-gold mb-2 text-center">Les Productions en Cours</h2>
         <div class="sticky top-0 z-20 bg-[#121212]/80 backdrop-blur-md py-4 mb-8 rounded-xl">
           <div class="flex flex-col items-center justify-center">
             <div class="relative w-full sm:w-96" aria-label="Recherche de réalisateur">
@@ -75,6 +91,11 @@
               <div id="autocomplete-list" class="absolute hidden w-full mt-1 bg-card border border-card rounded-lg shadow-lg max-h-60 overflow-y-auto z-30" role="listbox"></div>
             </div>
             <p class="mt-2 text-xs text-gray-500">Astuce : appuyez sur <kbd class="px-1 py-0.5 bg-card border border-card rounded">/</kbd> pour focaliser la recherche.</p>
+            <!-- Légende des classes -->
+            <div class="mt-2 flex items-center gap-2 text-xs">
+              <span class="badge badge-a">Classe A</span>
+              <span class="badge badge-b">Classe B</span>
+            </div>
           </div>
         </div>
         <div id="projects-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8"></div>
@@ -109,7 +130,7 @@
         { name: 'Achabys', class: 'B', mission: { title: 'L\'Installation Cinétique Murale', description: 'Créez une surface murale "vivante" avec des panneaux rotatifs. Votre installation doit permettre de jouer avec la lumière et la texture pour animer les projections 3D.' } },
         { name: 'Rolyx', class: 'A', mission: { title: 'Le Poste de Rendu "Think Outside the Box"', description: 'Concevez le poste de travail ultime pour un artiste numérique, en alliant une ergonomie parfaite à une esthétique futuriste et audacieuse.' } },
         { name: 'Duamel', class: 'B', mission: { title: 'Le Mur d\'Inspiration Modulable', description: 'Proposez un système d\'affichage (magnétique, modulable) à la fois fonctionnel et esthétique, qui devient une composition artistique évolutive.' } },
-        { name: 'Lois', class: 'B', mission: { title: 'L\'Autel des Sens', description: 'Modélisez un diffuseur de parfum sculptural et un système d\'éclairage d\'ambiance qui permettent de créer une atmosphère unique pour la photographie.' } }
+        { name: 'Loïs', class: 'B', mission: { title: 'L\'Autel des Sens', description: 'Modélisez un diffuseur de parfum sculptural et un système d\'éclairage d\'ambiance qui permettent de créer une atmosphère unique pour la photographie.' } }
       ] },
       { id: 3, name: 'The Blockbuster Factory', mission: 'L\'enjeu de ce projet est la transformation. Votre mission est de concevoir un espace caméléon, capable de changer radicalement d\'ambiance en un temps record. La modularité, l\'ingéniosité et la polyvalence du mobilier sont les clés du succès.', students: [
         { name: 'Iris', class: 'A', mission: { title: 'Le Bar de Toretto', description: 'Créez un bar mobile au design industriel, inspiré de *Fast & Furious*. Il doit être robuste, fonctionnel et suffisamment charismatique pour devenir une pièce centrale.' } },
@@ -189,6 +210,8 @@
 
     const cardHTML = (project, qNorm) => {
       const memberCount = project.students.length;
+      const countA = project.students.filter(s => s.class === 'A').length;
+      const countB = project.students.filter(s => s.class === 'B').length;
       const matching = qNorm ? project.students.filter(s => normalize(s.name).includes(qNorm)).map(s=>s.name) : [];
       const matches = matching.length ? `<div class=\"mt-4 pt-4 border-t border-card\"><p class=\"text-xs text-gray-400\">Résultat pour : <span class=\"font-semibold text-gold\">${escapeHTML(matching.join(', '))}</span></p></div>` : '';
       return `
@@ -199,7 +222,11 @@
           </div>
           <div class=\"mt-auto\">
             <div class=\"flex justify-between items-center text-sm pt-4 border-t border-card\">
-              <span class=\"font-semibold text-gray-300\">${memberCount} réalisateur${memberCount>1?'s':''}</span>
+              <div class=\"flex items-center gap-3\">
+                <span class=\"font-semibold text-gray-300\">${memberCount} réalisateur${memberCount>1?'s':''}</span>
+                <span class=\"badge badge-a\">A : ${countA}</span>
+                <span class=\"badge badge-b\">B : ${countB}</span>
+              </div>
               <span class=\"text-gold font-medium\">Consulter le Brief →</span>
             </div>
             ${matches}
@@ -213,9 +240,7 @@
       if (cols !== 3) return;
       const items = projectsGrid.children;
       if (!items.length) return;
-      if (items.length % 3 === 1) {
-        items[items.length - 1].style.gridColumn = '2';
-      }
+      if (items.length % 3 === 1) { items[items.length - 1].style.gridColumn = '2'; }
     };
 
     const renderProjects = (filtered, animate=true, query='') => {
@@ -285,14 +310,15 @@
         const isHighlighted = searchValue && normalize(st.name).includes(searchValue);
         const wrap = document.createElement('div');
         wrap.className = `py-4 border-b border-card last:border-b-0 -mx-6 px-6 ${isHighlighted ? 'highlight' : ''}`;
+        const classBadge = st.class === 'A' ? 'bg-red-900/50 text-red-200' : 'bg-blue-900/50 text-blue-200';
         wrap.innerHTML = `
-          <div class=\"flex items-center justify-between gap-4\">
-            <p class=\"font-bold text-lg text-white\">${escapeHTML(st.name)}</p>
-            <span class=\"text-sm font-medium flex-shrink-0 ${'${'}st.class === 'A' ? 'bg-red-900/50 text-red-200' : 'bg-blue-900/50 text-blue-200'${'}'} py-1 px-3 rounded-full\">Classe ${'${'}st.class${'}'}</span>
+          <div class="flex items-center justify-between gap-4">
+            <p class="font-bold text-lg text-white">${escapeHTML(st.name)}</p>
+            <span class="text-sm font-medium flex-shrink-0 ${classBadge} py-1 px-3 rounded-full">Classe ${escapeHTML(st.class)}</span>
           </div>
-          <div class=\"text-gray-400 mt-2\">
-            <strong class=\"text-gold block font-medium\">${escapeHTML(st.mission.title)}</strong>
-            <p class=\"text-sm mt-1 text-gray-300\">${escapeHTML(st.mission.description)}</p>
+          <div class="text-gray-400 mt-2">
+            <strong class="text-gold block font-medium">${escapeHTML(st.mission.title)}</strong>
+            <p class="text-sm mt-1 text-gray-300">${escapeHTML(st.mission.description)}</p>
           </div>`;
         studentsContainer.appendChild(wrap);
       });
