@@ -7,61 +7,72 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* Variables de thème */
-    :root{ --bg:#0b0f14; --card:#12171d; --text:#EAEAEA; --gold:#D4AF37; --g1:#0f172a; --g2:#1f2937 }
+    :root{ --bg:#0b0f14; --card:#12171d; --text:#E6E6E6; --text-weak:#DBDBDB; --gold:#D4AF37; --g1:#0f172a; --g2:#1f2937 }
     html,body{height:100%}
-    /* Fond dégradé dynamique basé sur g1/g2 */
-    body{background:linear-gradient(135deg, color-mix(in oklab, var(--g1) 88%, #000 12%), color-mix(in oklab, var(--g2) 88%, #000 12%)); color:var(--text)}
-    /* Scroll horizontal fluide */
+    body{background:linear-gradient(135deg, color-mix(in oklab, var(--g1) 88%, #000 12%), color-mix(in oklab, var(--g2) 88%, #000 12%)); color:var(--text); transition:background 1.2s ease-in-out}
     .htrack{scroll-snap-type:x mandatory}
-    .hslide{scroll-snap-align:center}
-    /* Ombre sous chaque PiXi */
+    .hslide{scroll-snap-align:center; transition:transform .4s ease, opacity .4s ease; opacity:.6}
+    .hslide[aria-current="true"]{transform:scale(1.05); opacity:1}
     .pixi-img{filter:drop-shadow(0 10px 24px rgba(0,0,0,.45))}
-    /* Fond semi-transparent de la modale */
     .overlay{background:rgba(0,0,0,.5)}
-    /* Carte de la modale */
     .dialog{background:var(--card)}
-    /* Bande de la timeline */
     .timeline{position:relative; min-width:100%}
-    .rail{position:absolute; left:0; top:50%; transform:translateY(-50%); height:12px; border-radius:999px; background:linear-gradient(90deg,#0f1318 0%,#3a3f45 50%,#0f1318 100%); opacity:.9; pointer-events:none; z-index:0; width:100%}
+    .rail{position:absolute; left:0; top:50%; transform:translateY(-50%); height:12px; border-radius:999px; opacity:.95; pointer-events:none; z-index:0; width:100%; background:linear-gradient(90deg,#0f1318 0%,#3a3f45 50%,#0f1318 100%)}
     .rail:after{content:""; position:absolute; inset:0; background:repeating-linear-gradient(90deg, transparent 0 22px, rgba(255,255,255,.08) 22px 24px); border-radius:999px}
     .no-scrollbar{scrollbar-width:none}
     .no-scrollbar::-webkit-scrollbar{display:none}
+    .btn{display:inline-flex; align-items:center; gap:.5rem; padding:.5rem .75rem; border-radius:.75rem; border:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.05)}
+    .btn:hover{background:rgba(255,255,255,.08)}
+    .storyboard .hslide{width:120px}
+    .storyboard #track{gap:1.25rem}
+    .openDlg{position:relative}
+    .openDlg[data-tip]::after{content:attr(data-tip); position:absolute; left:50%; bottom:110%; transform:translateX(-50%); white-space:nowrap; background:#0f1318; color:var(--text); border:1px solid rgba(255,255,255,.1); padding:.35rem .5rem; border-radius:.5rem; font-size:.75rem; opacity:0; pointer-events:none; transition:opacity .2s ease}
+    .openDlg:hover[data-tip]::after{opacity:1}
+    #cursor{position:fixed; left:0; top:0; width:8px; height:8px; border-radius:999px; background:var(--gold); box-shadow:0 0 12px rgba(212,175,55,.65); pointer-events:none; opacity:.8; transform:translate(-50%,-50%); z-index:50}
+    @media (prefers-reduced-motion: reduce){
+      .htrack{scroll-behavior:auto}
+      .hslide{transition:none}
+      body{transition:none}
+      #cursor{display:none}
+    }
   </style>
   <script>
-    /* Données centralisées : dégradés + contenu des 12 sessions */
     const DATA={
       gradients:[["#0f172a","#1f2937"],["#111827","#334155"],["#0b1220","#2b3440"],["#101418","#2a2f36"],["#131313","#2b2b2b"],["#0e1a1a","#243c3c"],["#15161a","#2c2d33"],["#12151a","#2b3340"],["#151519","#2e2a22"],["#14151a","#2f2d35"],["#16161b","#302f3a"],["#171717","#343434"]],
       sessions:[
-        {id:"S1",titre:"Cube Identitaire (FUN)",resume:"Prise en main + modéliser un cube-persona pour se présenter.",notebook:"https://notebooklm.google.com/placeholder/S1",pixi:"assets/pixi-identite.png"},
-        {id:"S2",titre:"Grammaire Temps Réel & Caméra (THÉORIE)",resume:"Navigation moteur temps réel, valeurs de plan, focale & expo.",notebook:"https://notebooklm.google.com/placeholder/S2",pixi:"assets/pixi-camera.png"},
-        {id:"S3",titre:"Initiation Mise en Page (TECHNIQUE)",resume:"Première planche narrative A3 et lien modèle 3D ↔ mise en page.",notebook:"https://notebooklm.google.com/placeholder/S3",pixi:"assets/pixi-layout.png"},
-        {id:"S4",titre:"Pictionary 3D (FUN)",resume:"Modélisation rapide chronométrée pour lire/écrire des formes.",notebook:"https://notebooklm.google.com/placeholder/S4",pixi:"assets/pixi-pictionary.png"},
-        {id:"S5",titre:"Grammaire Ciné/Photo & DA (THÉORIE)",resume:"Lumière, cadrage, LUTs : décoder des plans pour une DA claire.",notebook:"https://notebooklm.google.com/placeholder/S5",pixi:"assets/pixi-rembrandt.png"},
-        {id:"S6",titre:"Hygiène Modèle & Plugins (TECHNIQUE)",resume:"Nettoyage, pivots, nomenclature, plugins clés pour le workflow.",notebook:"https://notebooklm.google.com/placeholder/S6",pixi:"assets/pixi-hygiene.png"},
-        {id:"S7",titre:"Idéation par IA & Lumière (FUN)",resume:"Générer des ambiances & style-guides, bases de prompt structuré.",notebook:"https://notebooklm.google.com/placeholder/S7",pixi:"assets/pixi-ia.png"},
-        {id:"S8",titre:"Lumière & Caméras Avancées (THÉORIE)",resume:"Key/Fill/Rim, cohérence des trajectoires caméra pour le récit.",notebook:"https://notebooklm.google.com/placeholder/S8",pixi:"assets/pixi-3points.png"},
-        {id:"S9",titre:"Matériaux PBR & D5 (TECHNIQUE)",resume:"Roughness/Metalness, normales, comparaison moteurs de rendu.",notebook:"https://notebooklm.google.com/placeholder/S9",pixi:"assets/pixi-pbr.png"},
-        {id:"S10",titre:"Montage & Rythme (FUN/THÉORIE)",resume:"3 actes, titrage, transitions — assembler un rough-cut lisible.",notebook:"https://notebooklm.google.com/placeholder/S10",pixi:"assets/pixi-montage.png"},
-        {id:"S11",titre:"Prompt Engineering Avancé (THÉORIE)",resume:"Structure avancée des prompts pour résultats précis & traçables.",notebook:"https://notebooklm.google.com/placeholder/S11",pixi:"assets/pixi-prompt.png"},
-        {id:"S12",titre:"Restitution Finale & Jury (TECH/ÉVAL)",resume:"Exports propres, QA, présentation des livrables au jury.",notebook:"https://notebooklm.google.com/placeholder/S12",pixi:"assets/pixi-jury.png"}
+        {id:"S1",type:"FUN",titre:"Cube Identitaire (FUN)",resume:"Prise en main + modéliser un cube-persona pour se présenter.",notebook:"https://notebooklm.google.com/placeholder/S1",pixi:"assets/pixi-identite.png"},
+        {id:"S2",type:"THÉORIE",titre:"Grammaire Temps Réel & Caméra (THÉORIE)",resume:"Navigation moteur temps réel, valeurs de plan, focale & expo.",notebook:"https://notebooklm.google.com/placeholder/S2",pixi:"assets/pixi-camera.png"},
+        {id:"S3",type:"TECHNIQUE",titre:"Initiation Mise en Page (TECHNIQUE)",resume:"Première planche narrative A3 et lien modèle 3D ↔ mise en page.",notebook:"https://notebooklm.google.com/placeholder/S3",pixi:"assets/pixi-layout.png"},
+        {id:"S4",type:"FUN",titre:"Pictionary 3D (FUN)",resume:"Modélisation rapide chronométrée pour lire/écrire des formes.",notebook:"https://notebooklm.google.com/placeholder/S4",pixi:"assets/pixi-pictionary.png"},
+        {id:"S5",type:"THÉORIE",titre:"Grammaire Ciné/Photo & DA (THÉORIE)",resume:"Lumière, cadrage, LUTs : décoder des plans pour une DA claire.",notebook:"https://notebooklm.google.com/placeholder/S5",pixi:"assets/pixi-rembrandt.png"},
+        {id:"S6",type:"TECHNIQUE",titre:"Hygiène Modèle & Plugins (TECHNIQUE)",resume:"Nettoyage, pivots, nomenclature, plugins clés pour le workflow.",notebook:"https://notebooklm.google.com/placeholder/S6",pixi:"assets/pixi-hygiene.png"},
+        {id:"S7",type:"FUN",titre:"Idéation par IA & Lumière (FUN)",resume:"Générer des ambiances & style-guides, bases de prompt structuré.",notebook:"https://notebooklm.google.com/placeholder/S7",pixi:"assets/pixi-ia.png"},
+        {id:"S8",type:"THÉORIE",titre:"Lumière & Caméras Avancées (THÉORIE)",resume:"Key/Fill/Rim, cohérence des trajectoires caméra pour le récit.",notebook:"https://notebooklm.google.com/placeholder/S8",pixi:"assets/pixi-3points.png"},
+        {id:"S9",type:"TECHNIQUE",titre:"Matériaux PBR & D5 (TECHNIQUE)",resume:"Roughness/Metalness, normales, comparaison moteurs de rendu.",notebook:"https://notebooklm.google.com/placeholder/S9",pixi:"assets/pixi-pbr.png"},
+        {id:"S10",type:"FUN",titre:"Montage & Rythme (FUN/THÉORIE)",resume:"3 actes, titrage, transitions — assembler un rough-cut lisible.",notebook:"https://notebooklm.google.com/placeholder/S10",pixi:"assets/pixi-montage.png"},
+        {id:"S11",type:"THÉORIE",titre:"Prompt Engineering Avancé (THÉORIE)",resume:"Structure avancée des prompts pour résultats précis & traçables.",notebook:"https://notebooklm.google.com/placeholder/S11",pixi:"assets/pixi-prompt.png"},
+        {id:"S12",type:"TECHNIQUE",titre:"Restitution Finale & Jury (TECH/ÉVAL)",resume:"Exports propres, QA, présentation des livrables au jury.",notebook:"https://notebooklm.google.com/placeholder/S12",pixi:"assets/pixi-jury.png"}
       ],
       pixiFallback:"assets/pixi-default.png"
     };
   </script>
 </head>
 <body class="antialiased selection:bg-yellow-500/20">
-  <header class="max-w-6xl mx-auto px-6 pt-8">
-    <h1 class="text-2xl md:text-3xl font-semibold tracking-tight">Timeline — RNP · Semestre 1</h1>
-    <p class="text-sm text-white/70 mt-1">12 sessions · Timeline horizontale · Cliquez sur PiXi pour le détail & NotebookLM</p>
+  <div id="cursor"></div>
+  <header class="max-w-6xl mx-auto px-6 pt-8 flex items-start justify-between gap-4">
+    <div>
+      <h1 class="text-2xl md:text-3xl font-semibold tracking-tight">Timeline — RNP · Semestre 1</h1>
+      <p class="text-sm text-white/80 mt-1">12 sessions · Timeline horizontale · Cliquez sur PiXi pour le détail & NotebookLM</p>
+    </div>
+    <div class="shrink-0 flex items-center gap-2">
+      <button id="toggleView" class="btn text-white/85">Vue Storyboard</button>
+    </div>
   </header>
   <main class="mt-6">
     <section aria-label="Timeline des sessions S1" class="relative px-6">
-      <!-- Conteneur horizontal de la timeline -->
       <div id="track" class="timeline htrack overflow-x-auto no-scrollbar flex gap-12 py-16 scroll-smooth min-w-full" tabindex="0" role="list"></div>
     </section>
   </main>
-  <!-- Boîte de dialogue qui s'ouvre au clic sur une session -->
   <div id="dialogRoot" class="hidden fixed inset-0 overlay flex items-end sm:items-center justify-center p-4 z-50">
     <div role="dialog" aria-modal="true" aria-labelledby="dlgTitle" aria-describedby="dlgDesc" class="dialog w-full max-w-md rounded-2xl shadow-2xl ring-1 ring-white/10 p-5">
       <div class="flex items-start gap-3">
@@ -69,108 +80,103 @@
         <div class="min-w-0">
           <h2 id="dlgTitle" class="text-base font-semibold"></h2>
           <p id="dlgDesc" class="text-sm text-white/80 mt-1"></p>
-          <a id="dlgLink" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 mt-3 text-sm font-medium text-black bg-[var(--gold)] hover:brightness-95 px-3 py-1.5 rounded-lg transition" href="#">Ouvrir dans NotebookLM</a>
+          <a id="dlgLink" aria-disabled="false" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 mt-3 text-sm font-medium text-black bg-[var(--gold)] hover:brightness-95 px-3 py-1.5 rounded-lg transition" href="#">Ouvrir dans NotebookLM</a>
         </div>
       </div>
       <div class="flex justify-end mt-4">
-        <button id="dlgClose" class="text-sm text-white/80 hover:text-white px-3 py-1.5 rounded-md ring-1 ring-white/10">Fermer (Esc)</button>
+        <button id="dlgClose" class="text-sm text-white/85 hover:text-white px-3 py-1.5 rounded-md ring-1 ring-white/10">Fermer (Esc)</button>
       </div>
     </div>
   </div>
-  <!-- Élément invisible pour annonces ARIA -->
   <div id="srLive" class="sr-only" aria-live="polite"></div>
-  <footer class="max-w-6xl mx-auto px-6 py-10 text-xs text-white/60">© 2025 · Projet <span class="font-medium text-[var(--gold)]">RNP</span> — Timeline S1</footer>
+  <footer class="max-w-6xl mx-auto px-6 py-10 text-xs text-white/70">© 2025 · Projet <span class="font-medium text-[var(--gold)]">RNP</span> — Timeline S1</footer>
   <script>
-    /* Raccourcis DOM */
     const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
-    /* Fonction pour échapper le HTML injecté dynamiquement */
-    const escapeHTML=s=>String(s).replace(/[&<>"]'/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m]));
+    const escapeHTML=s=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m]));
+    const track=$('#track');
 
-    const track=document.querySelector('#track');
+    const short=(t,max=80)=>{ t=String(t||''); return t.length>max? t.slice(0,max-1)+'…': t };
 
-    /* Crée un bloc PiXi + titre de session */
     const makeCard=(s,idx)=>{
       const img=s.pixi||DATA.pixiFallback;
       const el=document.createElement('article');
       el.className='hslide shrink-0 w-[180px] md:w-[220px] relative text-center';
       el.setAttribute('role','listitem');
       el.dataset.index=idx;
-      el.innerHTML=`<button class="openDlg block mx-auto -mb-1" aria-label="Détails ${escapeHTML(s.id)} — ${escapeHTML(s.titre)}" data-index="${idx}"><img src="${escapeHTML(img)}" alt="PiXi — ${escapeHTML(s.id)}" class="h-20 w-20 md:h-24 md:w-24 object-contain pixi-img" /></button><div class="mt-2"><span class="text-[11px] tracking-widest uppercase text-white/60">${escapeHTML(s.id)}</span><h3 class="text-sm md:text-base font-medium leading-tight">${escapeHTML(s.titre)}</h3></div>`;
+      el.dataset.type=s.type||'';
+      el.innerHTML=`<button class="openDlg block mx-auto -mb-1" aria-label="Détails ${escapeHTML(s.id)} — ${escapeHTML(s.titre)}" data-index="${idx}" data-tip="${escapeHTML(short(s.resume))}"><img src="${escapeHTML(img)}" alt="PiXi — ${escapeHTML(s.id)}" class="h-20 w-20 md:h-24 md:w-24 object-contain pixi-img" /></button><div class="mt-2"><span class="text-[11px] tracking-widest uppercase text-white/60">${escapeHTML(s.id)}</span><h3 class="text-sm md:text-base font-medium leading-tight">${escapeHTML(s.titre)}</h3></div>`;
       return el;
     };
 
-    /* Génère toutes les cartes */
     DATA.sessions.forEach((s,i)=>track.appendChild(makeCard(s,i)));
 
-    /* Bande (rail) de la timeline */
     const rail=document.createElement('div');
     rail.className='rail';
     track.appendChild(rail);
 
-    /* Calcule la longueur du rail avec scrollWidth et regroupe via rAF */
-    let rafId=null;
-    const layoutRail=()=>{
-      if(rafId) cancelAnimationFrame(rafId);
-      rafId=requestAnimationFrame(()=>{
-        rail.style.width=track.scrollWidth+"px";
+    const TYPE_COLORS={ FUN:'rgba(212,175,55,.25)', TECHNIQUE:'rgba(86,138,199,.22)', 'THÉORIE':'rgba(200,200,210,.22)' };
+
+    const buildRailGradient=()=>{
+      const items=[...track.querySelectorAll('article.hslide')];
+      if(!items.length) return;
+      const step=100/items.length;
+      let stops=[];
+      items.forEach((el,i)=>{
+        const c=TYPE_COLORS[el.dataset.type]||'transparent';
+        const a=(i*step).toFixed(3), b=((i+1)*step).toFixed(3);
+        stops.push(`${c} ${a}% ${b}%`);
       });
+      rail.style.background=`linear-gradient(90deg, ${stops.join(', ')}), linear-gradient(90deg,#0f1318 0%,#3a3f45 50%,#0f1318 100%)`;
     };
 
-    /* Ajuste le rail après chargement et redimensionnement */
+    let rafId=null;
+    const layoutRail=()=>{ if(rafId) cancelAnimationFrame(rafId); rafId=requestAnimationFrame(()=>{ rail.style.width=track.scrollWidth+"px"; buildRailGradient(); }); };
+
     layoutRail();
     addEventListener('resize',layoutRail);
     const imgs=[...track.querySelectorAll('img')];
     imgs.forEach(img=>{ if(img.complete) return; img.addEventListener('load',layoutRail,{once:true}) });
     if('ResizeObserver' in window){ const ro=new ResizeObserver(layoutRail); ro.observe(track) }
 
-    /* Applique un dégradé différent selon la session visible */
     const applyGradient=i=>{
       const g=DATA.gradients[i]||DATA.gradients[0];
       document.documentElement.style.setProperty('--g1',g[0]);
       document.documentElement.style.setProperty('--g2',g[1]);
-      document.querySelector('#srLive').textContent=`Session active ${DATA.sessions[i].id} — ${DATA.sessions[i].titre}`;
+      $('#srLive').textContent=`Session active ${DATA.sessions[i].id} — ${DATA.sessions[i].titre}`;
     };
 
-    /* Observe les sessions visibles pour changer le fond */
-    let currentIndex=0;
+    let currentIndex=0; let currentEl=null;
     const io=new IntersectionObserver(ents=>{
-      ents.filter(e=>e.isIntersecting).forEach(e=>{
-        const idx=+e.target.dataset.index;
-        applyGradient(idx);
-        currentIndex=idx;
-      });
+      ents.forEach(e=>{
+        if(e.isIntersecting){ currentIndex=+e.target.dataset.index; applyGradient(currentIndex); if(currentEl) currentEl.removeAttribute('aria-current'); currentEl=e.target; currentEl.setAttribute('aria-current','true'); }
+      })
     },{root:track,threshold:.6});
-
     $$('.hslide',track).forEach(el=>io.observe(el));
 
-    /* Logique de la modale */
-    const dlg=document.querySelector('#dialogRoot'), dlgTitle=document.querySelector('#dlgTitle'), dlgDesc=document.querySelector('#dlgDesc'), dlgLink=document.querySelector('#dlgLink'), dlgImg=document.querySelector('#dlgImg'), dlgClose=document.querySelector('#dlgClose');
+    const dlg=$('#dialogRoot'), dlgTitle=$('#dlgTitle'), dlgDesc=$('#dlgDesc'), dlgLink=$('#dlgLink'), dlgImg=$('#dlgImg'), dlgClose=$('#dlgClose');
     let lastFocus=null;
 
-    /* Ouvre la modale */
     const openDlg=idx=>{
       const s=DATA.sessions[idx];
-      dlgTitle.textContent=s.titre;
-      dlgDesc.textContent=s.resume;
-      dlgLink.href=s.notebook;
-      dlgImg.src=s.pixi||DATA.pixiFallback;
+      dlgTitle.textContent=s.titre; dlgDesc.textContent=s.resume; dlgImg.src=s.pixi||DATA.pixiFallback;
+      const isValid=s.notebook && !s.notebook.includes('placeholder');
+      dlgLink.href=isValid ? s.notebook : '#';
+      dlgLink.setAttribute('aria-disabled', String(!isValid));
+      dlgLink.tabIndex=isValid ? 0 : -1;
+      dlgLink.classList.toggle('opacity-50', !isValid);
+      dlgLink.classList.toggle('cursor-not-allowed', !isValid);
+      dlgLink.classList.toggle('pointer-events-none', !isValid);
       dlg.classList.remove('hidden');
       lastFocus=document.activeElement;
       const focusables=[...dlg.querySelectorAll('a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])')].filter(el=>!el.disabled);
       if(focusables.length){ focusables[0].focus(); }
     };
 
-    /* Ferme la modale */
-    const closeDlg=()=>{
-      dlg.classList.add('hidden');
-      if(lastFocus) lastFocus.focus();
-    };
-
+    const closeDlg=()=>{ dlg.classList.add('hidden'); if(lastFocus) lastFocus.focus(); };
     dlg.addEventListener('click',e=>{ if(e.target===dlg) closeDlg() });
     dlgClose.addEventListener('click',closeDlg);
     document.addEventListener('keydown',e=>{ if(e.key==='Escape' && !dlg.classList.contains('hidden')) closeDlg() });
 
-    /* Piège de focus dans la modale */
     dlg.addEventListener('keydown',e=>{
       if(e.key!=='Tab') return;
       const focusables=[...dlg.querySelectorAll('a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])')].filter(el=>!el.disabled && el.offsetParent!==null);
@@ -180,29 +186,29 @@
       else if(!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); }
     });
 
-    /* Ouvre la modale au clic sur un PiXi */
-    track.addEventListener('click',e=>{
-      const btn=e.target.closest('.openDlg');
-      if(!btn) return;
-      openDlg(+btn.dataset.index);
-    });
+    track.addEventListener('click',e=>{ const btn=e.target.closest('.openDlg'); if(!btn) return; openDlg(+btn.dataset.index) });
 
-    /* Navigation clavier gauche/droite entre les sessions */
-    const goTo=i=>{
-      const c=Math.max(0,Math.min(DATA.sessions.length-1,i));
-      const t=document.querySelector(`article[data-index="${c}"]`);
-      if(t) t.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});
-    };
+    const prefersReduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const goTo=i=>{ const c=Math.max(0,Math.min(DATA.sessions.length-1,i)); const t=$(`article[data-index="${c}"]`); if(t) t.scrollIntoView({behavior: prefersReduced? 'auto' : 'smooth', inline:'center', block:'nearest'}) };
+    document.addEventListener('keydown',e=>{ if(dlg.classList.contains('hidden')){ if(e.key==='ArrowRight') goTo(currentIndex+1); if(e.key==='ArrowLeft') goTo(currentIndex-1); } });
 
-    document.addEventListener('keydown',e=>{
-      if(dlg.classList.contains('hidden')){
-        if(e.key==='ArrowRight') goTo(currentIndex+1);
-        if(e.key==='ArrowLeft') goTo(currentIndex-1);
-      }
-    });
-
-    /* Démarre avec le premier dégradé */
     applyGradient(0);
+
+    const toggle=$('#toggleView');
+    toggle.addEventListener('click',()=>{
+      document.body.classList.toggle('storyboard');
+      toggle.textContent=document.body.classList.contains('storyboard')? 'Vue Timeline' : 'Vue Storyboard';
+      layoutRail();
+    });
+
+    (function(){
+      const c=$('#cursor'); if(!c) return;
+      let x=0,y=0, tx=0, ty=0, raf;
+      const loop=()=>{ tx+= (x-tx)*.18; ty+= (y-ty)*.18; c.style.transform=`translate(${tx}px, ${ty}px)`; raf=requestAnimationFrame(loop) };
+      addEventListener('mousemove',e=>{ x=e.clientX; y=e.clientY; if(!raf) loop(); });
+      addEventListener('mouseleave',()=>{ cancelAnimationFrame(raf); raf=null; c.style.opacity='.0' });
+      addEventListener('mouseenter',()=>{ c.style.opacity='.8' });
+    })();
   </script>
 </body>
 </html>
