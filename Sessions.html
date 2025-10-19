@@ -7,36 +7,23 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    :root{
-      --bg:#0b0f14; --card:#12171d; --text:#EAEAEA; --gold:#D4AF37;
-      --g1:#0f172a; --g2:#1f2937;
-    }
+    :root{ --bg:#0b0f14; --card:#12171d; --text:#EAEAEA; --gold:#D4AF37; --g1:#0f172a; --g2:#1f2937; }
     html,body{height:100%}
-    body{
-      background:linear-gradient(135deg, color-mix(in oklab, var(--g1) 88%, #000 12%), color-mix(in oklab, var(--g2) 88%, #000 12%));
-      color:var(--text);
-    }
-    .htrack{scroll-snap-type:x mandatory;}
-    .hslide{scroll-snap-align:center;}
-    .pixi-img{filter: drop-shadow(0 10px 24px rgba(0,0,0,.45));}
-    .pixi-fab{position:fixed; right:1rem; bottom:1rem;}
+    body{ background:linear-gradient(135deg, color-mix(in oklab, var(--g1) 88%, #000 12%), color-mix(in oklab, var(--g2) 88%, #000 12%)); color:var(--text); }
+    .htrack{scroll-snap-type:x mandatory}
+    .hslide{scroll-snap-align:center}
+    .pixi-img{filter: drop-shadow(0 10px 24px rgba(0,0,0,.45))}
     .overlay{background:rgba(0,0,0,.5)}
     .dialog{background:var(--card)}
     .timeline{position:relative}
-    .timeline::before{
-      content:""; position:absolute; left:0; right:0; top:50%; transform:translateY(-50%);
-      height:2px; background:linear-gradient(90deg, #0b0f14, #3b3f45, #0b0f14); opacity:.6;
-    }
+    .timeline::before{ content:""; position:absolute; left:0; right:0; top:50%; transform:translateY(-50%); height:10px; border-radius:999px; background:linear-gradient(90deg, #0f1318, #353a40, #0f1318); opacity:.85 }
+    .timeline::after{ content:""; position:absolute; left:0; right:0; top:0; bottom:0; pointer-events:none; background: radial-gradient(circle, rgba(255,255,255,.10) 0 3px, transparent 3px) 0 calc(50% - 18px)/24px 12px repeat-x, radial-gradient(circle, rgba(255,255,255,.10) 0 3px, transparent 3px) 0 calc(50% + 18px)/24px 12px repeat-x }
+    .no-scrollbar{scrollbar-width:none}
     .no-scrollbar::-webkit-scrollbar{display:none}
   </style>
-
   <script>
-    const DATA = {
-      gradients:[
-        ["#0f172a","#1f2937"],["#111827","#334155"],["#0b1220","#2b3440"],["#101418","#2a2f36"],["#131313","#2b2b2b"],
-        ["#0e1a1a","#243c3c"],["#15161a","#2c2d33"],["#12151a","#2b3340"],["#151519","#2e2a22"],["#14151a","#2f2d35"],
-        ["#16161b","#302f3a"],["#171717","#343434"]
-      ],
+    const DATA={
+      gradients:[["#0f172a","#1f2937"],["#111827","#334155"],["#0b1220","#2b3440"],["#101418","#2a2f36"],["#131313","#2b2b2b"],["#0e1a1a","#243c3c"],["#15161a","#2c2d33"],["#12151a","#2b3340"],["#151519","#2e2a22"],["#14151a","#2f2d35"],["#16161b","#302f3a"],["#171717","#343434"]],
       sessions:[
         {id:"S1",titre:"Cube Identitaire (FUN)",resume:"Prise en main + modéliser un cube-persona pour se présenter.",notebook:"https://notebooklm.google.com/placeholder/S1",pixi:"assets/pixi-identite.png"},
         {id:"S2",titre:"Grammaire Temps Réel & Caméra (THÉORIE)",resume:"Navigation moteur temps réel, valeurs de plan, focale & expo.",notebook:"https://notebooklm.google.com/placeholder/S2",pixi:"assets/pixi-camera.png"},
@@ -60,18 +47,12 @@
     <h1 class="text-2xl md:text-3xl font-semibold tracking-tight">Timeline — RNP · Semestre 1</h1>
     <p class="text-sm text-white/70 mt-1">12 sessions · Timeline horizontale · Cliquez sur PiXi pour le détail & NotebookLM</p>
   </header>
-
   <main class="mt-6">
     <section aria-label="Timeline des sessions S1" class="relative px-6">
       <div id="track" class="timeline htrack overflow-x-auto no-scrollbar flex gap-12 py-16 scroll-smooth" tabindex="0" role="list"></div>
     </section>
   </main>
-
-  <button id="pilot" class="pixi-fab rounded-full shadow-xl ring-1 ring-white/10 bg-white/5 backdrop-blur p-2 hover:scale-105 transition" aria-label="Aller à la session suivante">
-    <img id="pilotImg" class="h-14 w-14 object-contain pixi-img" alt="PiXi — Suivant" src="assets/pixi-next.png">
-  </button>
-
-  <div id="dialogRoot" class="hidden fixed inset-0 overlay items-end sm:items-center justify-center p-4 z-50">
+  <div id="dialogRoot" class="hidden fixed inset-0 overlay flex items-end sm:items-center justify-center p-4 z-50">
     <div role="dialog" aria-modal="true" aria-labelledby="dlgTitle" aria-describedby="dlgDesc" class="dialog w-full max-w-md rounded-2xl shadow-2xl ring-1 ring-white/10 p-5">
       <div class="flex items-start gap-3">
         <img id="dlgImg" class="h-12 w-12 object-contain pixi-img" alt="" />
@@ -86,76 +67,28 @@
       </div>
     </div>
   </div>
-
   <div id="srLive" class="sr-only" aria-live="polite"></div>
-
   <footer class="max-w-6xl mx-auto px-6 py-10 text-xs text-white/60">© 2025 · Projet <span class="font-medium text-[var(--gold)]">RNP</span> — Timeline S1</footer>
-
   <script>
-    const $=(s,r=document)=>r.querySelector(s); const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+    const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
     const escapeHTML=s=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m]));
-
-    const track=$("#track");
-    const makeCard=(s,idx)=>{
-      const img=s.pixi||DATA.pixiFallback;
-      const card=document.createElement("article");
-      card.className="hslide shrink-0 w-[180px] md:w-[220px] relative text-center";
-      card.setAttribute("role","listitem");
-      card.dataset.index=idx;
-      card.innerHTML=`
-        <button class="openDlg block mx-auto -mb-1" aria-label="Détails ${escapeHTML(s.id)} — ${escapeHTML(s.titre)}" data-index="${idx}">
-          <img src="${escapeHTML(img)}" alt="PiXi — ${escapeHTML(s.id)}" class="h-20 w-20 md:h-24 md:w-24 object-contain pixi-img" />
-        </button>
-        <div class="mt-2">
-          <span class="text-[11px] tracking-widest uppercase text-white/60">${escapeHTML(s.id)}</span>
-          <h3 class="text-sm md:text-base font-medium leading-tight">${escapeHTML(s.titre)}</h3>
-        </div>`;
-      return card;
-    };
-
+    const track=document.querySelector('#track');
+    const makeCard=(s,idx)=>{ const img=s.pixi||DATA.pixiFallback; const el=document.createElement('article'); el.className='hslide shrink-0 w-[180px] md:w-[220px] relative text-center'; el.setAttribute('role','listitem'); el.dataset.index=idx; el.innerHTML=`<button class=\"openDlg block mx-auto -mb-1\" aria-label=\"Détails ${escapeHTML(s.id)} — ${escapeHTML(s.titre)}\" data-index=\"${idx}\"><img src=\"${escapeHTML(img)}\" alt=\"PiXi — ${escapeHTML(s.id)}\" class=\"h-20 w-20 md:h-24 md:w-24 object-contain pixi-img\" /></button><div class=\"mt-2\"><span class=\"text-[11px] tracking-widest uppercase text-white/60\">${escapeHTML(s.id)}</span><h3 class=\"text-sm md:text-base font-medium leading-tight\">${escapeHTML(s.titre)}</h3></div>`; return el };
     DATA.sessions.forEach((s,i)=>track.appendChild(makeCard(s,i)));
-
-    const applyGradient=i=>{
-      const g=DATA.gradients[i]||DATA.gradients[0];
-      document.documentElement.style.setProperty("--g1",g[0]);
-      document.documentElement.style.setProperty("--g2",g[1]);
-      $("#srLive").textContent=`Session active ${DATA.sessions[i].id} — ${DATA.sessions[i].titre}`;
-    };
-
-    const io=new IntersectionObserver(ents=>{
-      ents.filter(e=>e.isIntersecting).forEach(e=>{
-        const idx=+e.target.dataset.index;
-        applyGradient(idx);
-        currentIndex=idx;
-      });
-    },{root:track,threshold:.6});
-    $$(".hslide",track).forEach(el=>io.observe(el));
-
-    const dlg=$("#dialogRoot"),dlgTitle=$("#dlgTitle"),dlgDesc=$("#dlgDesc"),dlgLink=$("#dlgLink"),dlgImg=$("#dlgImg"),dlgClose=$("#dlgClose");
-    let lastFocus=null;
-    const openDlg=idx=>{
-      const s=DATA.sessions[idx];
-      dlgTitle.textContent=s.titre; dlgDesc.textContent=s.resume; dlgLink.href=s.notebook; dlgImg.src=s.pixi||DATA.pixiFallback;
-      dlg.classList.remove("hidden"); lastFocus=document.activeElement; dlgClose.focus();
-    };
-    const closeDlg=()=>{dlg.classList.add("hidden"); if(lastFocus) lastFocus.focus();};
-    dlg.addEventListener("click",e=>{if(e.target===dlg)closeDlg();});
-    dlgClose.addEventListener("click",closeDlg);
-    document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!dlg.classList.contains("hidden"))closeDlg();});
-
-    track.addEventListener("click",e=>{
-      const btn=e.target.closest(".openDlg"); if(!btn)return; openDlg(+btn.dataset.index);
-    });
-
+    const applyGradient=i=>{ const g=DATA.gradients[i]||DATA.gradients[0]; document.documentElement.style.setProperty('--g1',g[0]); document.documentElement.style.setProperty('--g2',g[1]); document.querySelector('#srLive').textContent=`Session active ${DATA.sessions[i].id} — ${DATA.sessions[i].titre}` };
     let currentIndex=0;
-    const goTo=i=>{
-      const c=Math.max(0,Math.min(DATA.sessions.length-1,i));
-      const t=$(`article[data-index="${c}"]`,track); if(t)t.scrollIntoView({behavior:"smooth",inline:"center",block:"nearest"});
-    };
-    $("#pilot").addEventListener("click",e=>{if(e.shiftKey)goTo(currentIndex-1);else goTo(currentIndex+1);});
-    document.addEventListener("keydown",e=>{if(dlg.classList.contains("hidden")){if(e.key==="ArrowRight")goTo(currentIndex+1);if(e.key==="ArrowLeft")goTo(currentIndex-1);}});
-
-    $("#pilotImg").src=DATA.pixiFallback||"assets/pixi-next.png";
+    const io=new IntersectionObserver(ents=>{ ents.filter(e=>e.isIntersecting).forEach(e=>{ const idx=+e.target.dataset.index; applyGradient(idx); currentIndex=idx })},{root:track,threshold:.6});
+    $$('.hslide',track).forEach(el=>io.observe(el));
+    const dlg=document.querySelector('#dialogRoot'), dlgTitle=document.querySelector('#dlgTitle'), dlgDesc=document.querySelector('#dlgDesc'), dlgLink=document.querySelector('#dlgLink'), dlgImg=document.querySelector('#dlgImg'), dlgClose=document.querySelector('#dlgClose');
+    let lastFocus=null;
+    const openDlg=idx=>{ const s=DATA.sessions[idx]; dlgTitle.textContent=s.titre; dlgDesc.textContent=s.resume; dlgLink.href=s.notebook; dlgImg.src=s.pixi||DATA.pixiFallback; dlg.classList.remove('hidden'); lastFocus=document.activeElement; dlgClose.focus() };
+    const closeDlg=()=>{ dlg.classList.add('hidden'); if(lastFocus) lastFocus.focus() };
+    dlg.addEventListener('click',e=>{ if(e.target===dlg) closeDlg() });
+    dlgClose.addEventListener('click',closeDlg);
+    document.addEventListener('keydown',e=>{ if(e.key==='Escape' && !dlg.classList.contains('hidden')) closeDlg() });
+    track.addEventListener('click',e=>{ const btn=e.target.closest('.openDlg'); if(!btn) return; openDlg(+btn.dataset.index) });
+    const goTo=i=>{ const c=Math.max(0,Math.min(DATA.sessions.length-1,i)); const t=document.querySelector(`article[data-index="${c}"]`); if(t) t.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'}) };
+    document.addEventListener('keydown',e=>{ if(dlg.classList.contains('hidden')){ if(e.key==='ArrowRight') goTo(currentIndex+1); if(e.key==='ArrowLeft') goTo(currentIndex-1) } });
     applyGradient(0);
   </script>
 </body>
