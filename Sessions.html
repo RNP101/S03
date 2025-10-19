@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Timeline — RNP S1 (Représentation & Narration du Projet)</title>
+  <!-- preconnect & Tailwind -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root{
+      --bg:#121212; --card:#1E1E1E; --text:#EAEAEA; --gold:#D4AF37;
+      --g1:#0ea5e9; /* couleurs gradient dynamiques (MAJ via JS) */
+      --g2:#a78bfa;
+    }
+    html,body{height:100%}
+    body{background:radial-gradient(1200px 700px at 75% 25%, var(--g1), transparent 60%),
+                   radial-gradient(1000px 600px at 20% 80%, var(--g2), transparent 60%),
+                   var(--bg);
+         color:var(--text);}
+    /* Scroll horizontal + snap */
+    .htrack{scroll-snap-type:x mandatory;}
+    .hslide{scroll-snap-align:center;}
+    /* PiXi visuels */
+    .pixi-img{filter: drop-shadow(0 10px 24px rgba(0,0,0,.45));}
+    .pixi-fab{position:fixed; right:1rem; bottom:1rem;}
+    /* Dialog léger */
+    .overlay{background:rgba(0,0,0,.5)}
+    .dialog{background:var(--card)}
+    /* Défilement discret des ombres au bord */
+    .edge-fade:before,.edge-fade:after{
+      content:""; position:sticky; top:0; bottom:0; width:48px; z-index:10; pointer-events:none;
+    }
+    .edge-fade:before{left:0; background:linear-gradient(90deg, var(--bg), transparent)}
+    .edge-fade:after{right:0; background:linear-gradient(270deg, var(--bg), transparent)}
+  </style>
+  <!-- SOURCE: programme S1 (syllabus) → 0 -->
+
+  <!-- === ZONE SOURCES (remplacez uniquement les valeurs) =======================
+    - Pour chaque session : titre, résumé, lien NotebookLM, image PiXi (PNG/WEBP)
+    - Vous pouvez garder les images en local /assets/ ou mettre des URLs complètes.
+    - Astuce : MAJ rapide sans toucher le HTML → modifier uniquement ci-dessous.
+  ============================================================================ -->
+  <script>
+    const DATA = {
+      /* Palette de dégradés par session (couple [g1,g2]) */
+      gradients: [
+        ["#22d3ee","#d946ef"], // S1
+        ["#38bdf8","#a78bfa"], // S2
+        ["#34d399","#60a5fa"], // S3
+        ["#f59e0b","#ef4444"], // S4
+        ["#f472b6","#22d3ee"], // S5
+        ["#84cc16","#06b6d4"], // S6
+        ["#eab308","#8b5cf6"], // S7
+        ["#06b6d4","#f472b6"], // S8
+        ["#60a5fa","#f59e0b"], // S9
+        ["#22c55e","#eab308"], // S10
+        ["#8b5cf6","#34d399"], // S11
+        ["#ef4444","#22d3ee"], // S12
+      ],
+      /* Sessions S1 (12) — titres & résumés très courts */
+      sessions: [
+        {
+          id:"S1", titre:"Cube Identitaire (FUN)",
+          resume:"Prise en main + modéliser un cube-persona pour se présenter.",
+          notebook:"https://notebooklm.google.com/placeholder/S1",
+          pixi:"assets/pixi-identite.png" // ← remplacez par votre PNG PiXi
+        },
+        {
+          id:"S2", titre:"Grammaire Temps Réel & Caméra (THÉORIE)",
+          resume:"Navigation moteur temps réel, valeurs de plan, focale & expo.",
+          notebook:"https://notebooklm.google.com/placeholder/S2",
+          pixi:"assets/pixi-camera.png"
+        },
+        {
+          id:"S3", titre:"Initiation Mise en Page (TECHNIQUE)",
+          resume:"Première planche narrative A3 et lien modèle 3D ↔ mise en page.",
+          notebook:"https://notebooklm.google.com/placeholder/S3",
+          pixi:"assets/pixi-layout.png"
+        },
+        {
+          id:"S4", titre:"Pictionary 3D (FUN)",
+          resume:"Modélisation rapide chronométrée pour lire/écrire des formes.",
+          notebook:"https://notebooklm.google.com/placeholder/S4",
+          pixi:"assets/pixi-pictionary.png"
+        },
+        {
+          id:"S5", titre:"Grammaire Ciné/Photo & DA (THÉORIE)",
+          resume:"Lumière, cadrage, LUTs : décoder des plans pour une DA claire.",
+          notebook:"https://notebooklm.google.com/placeholder/S5",
+          pixi:"assets/pixi-rembrandt.png"
+        },
+        {
+          id:"S6", titre:"Hygiène Modèle & Plugins (TECHNIQUE)",
+          resume:"Nettoyage, pivots, nomenclature, plugins clés pour le workflow.",
+          notebook:"https://notebooklm.google.com/placeholder/S6",
+          pixi:"assets/pixi-hygiene.png"
+        },
+        {
+          id:"S7", titre:"Idéation par IA & Lumière (FUN)",
+          resume:"Générer des ambiances & style-guides, bases de prompt structuré.",
+          notebook:"https://notebooklm.google.com/placeholder/S7",
+          pixi:"assets/pixi-ia.png"
+        },
+        {
+          id:"S8", titre:"Lumière & Caméras Avancées (THÉORIE)",
+          resume:"Key/Fill/Rim, cohérence des trajectoires caméra pour le récit.",
+          notebook:"https://notebooklm.google.com/placeholder/S8",
+          pixi:"assets/pixi-3points.png"
+        },
+        {
+          id:"S9", titre:"Matériaux PBR & D5 (TECHNIQUE)",
+          resume:"Roughness/Metalness, normales, comparaison moteurs de rendu.",
+          notebook:"https://notebooklm.google.com/placeholder/S9",
+          pixi:"assets/pixi-pbr.png"
+        },
+        {
+          id:"S10", titre:"Montage & Rythme (FUN/THÉORIE)",
+          resume:"3 actes, titrage, transitions — assembler un rough-cut lisible.",
+          notebook:"https://notebooklm.google.com/placeholder/S10",
+          pixi:"assets/pixi-montage.png"
+        },
+        {
+          id:"S11", titre:"Prompt Engineering Avancé (THÉORIE)",
+          resume:"Structure avancée des prompts pour résultats précis & traçables.",
+          notebook:"https://notebooklm.google.com/placeholder/S11",
+          pixi:"assets/pixi-prompt.png"
+        },
+        {
+          id:"S12", titre:"Restitution Finale & Jury (TECH/ÉVAL)",
+          resume:"Exports propres, QA, présentation des livrables au jury.",
+          notebook:"https://notebooklm.google.com/placeholder/S12",
+          pixi:"assets/pixi-jury.png"
+        }
+      ],
+      /* Image par défaut (affiché si une session n'a pas encore son PNG PiXi) */
+      pixiFallback:"assets/pixi-default.png"
+    };
+  </script>
+</head>
+<body class="antialiased selection:bg-yellow-500/20">
+  <header class="max-w-6xl mx-auto px-6 pt-8">
+    <h1 class="text-2xl md:text-3xl font-semibold tracking-tight">Timeline — RNP · Semestre 1</h1>
+    <p class="text-sm text-white/70 mt-1">12 sessions · Scroll horizontal · Cliquez sur PiXi pour le détail & NotebookLM</p>
+  </header>
+
+  <main class="mt-6">
+    <!-- Timeline horizontale -->
+    <section aria-label="Timeline des sessions S1"
+             class="edge-fade relative">
+      <div id="track"
+           class="htrack overflow-x-auto no-scrollbar flex gap-6 px-6 py-8 scroll-smooth"
+           tabindex="0" role="list">
+        <!-- Cartes injectées par JS -->
+      </div>
+    </section>
+  </main>
+
+  <!-- PiXi Pilot (passer à la session suivante) -->
+  <button id="pilot"
+          class="pixi-fab rounded-full shadow-xl ring-1 ring-white/10 bg-white/5 backdrop-blur p-2 hover:scale-105 transition"
+          aria-label="Aller à la session suivante">
+    <img id="pilotImg" class="h-14 w-14 object-contain pixi-img" alt="PiXi — Suivant" src="assets/pixi-next.png">
+  </button>
+
+  <!-- Dialog léger -->
+  <div id="dialogRoot" class="hidden fixed inset-0 overlay items-end sm:items-center justify-center p-4 z-50">
+    <div role="dialog" aria-modal="true" aria-labelledby="dlgTitle" aria-describedby="dlgDesc"
+         class="dialog w-full max-w-md rounded-2xl shadow-2xl ring-1 ring-white/10 p-5">
+      <div class="flex items-start gap-3">
+        <img id="dlgImg" class="h-12 w-12 object-contain pixi-img" alt="" />
+        <div class="min-w-0">
+          <h2 id="dlgTitle" class="text-base font-semibold"></h2>
+          <p id="dlgDesc" class="text-sm text-white/80 mt-1"></p>
+          <a id="dlgLink" target="_blank" rel="noopener noreferrer"
+             class="inline-flex items-center gap-2 mt-3 text-sm font-medium text-black bg-[var(--gold)] hover:brightness-95 px-3 py-1.5 rounded-lg transition"
+             href="#">Ouvrir dans NotebookLM</a>
+        </div>
+      </div>
+      <div class="flex justify-end mt-4">
+        <button id="dlgClose" class="text-sm text-white/80 hover:text-white px-3 py-1.5 rounded-md ring-1 ring-white/10">
+          Fermer (Esc)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SR-only pour annoncer la session active -->
+  <div id="srLive" class="sr-only" aria-live="polite"></div>
+
+  <footer class="max-w-6xl mx-auto px-6 py-10 text-xs text-white/60">
+    © 2025 · Projet <span class="font-medium text-[var(--gold)]">RNP</span> — Timeline S1
+  </footer>
+
+  <script>
+    // util
+    const $ = (s, r=document)=>r.querySelector(s); const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+    const escapeHTML = s => String(s).replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
+
+    // Rendu des cartes
+    const track = $("#track");
+    const makeCard = (s, idx) => {
+      const img = s.pixi || DATA.pixiFallback;
+      const card = document.createElement("article");
+      card.className = "hslide shrink-0 w-[86vw] md:w-[58vw] lg:w-[46vw] xl:w-[40vw] rounded-3xl ring-1 ring-white/10 bg-white/5 backdrop-blur p-5 md:p-6";
+      card.setAttribute("role","listitem");
+      card.dataset.index = idx;
+      card.innerHTML = `
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <span class="text-xs uppercase tracking-widest text-white/60">${escapeHTML(s.id)}</span>
+            <h3 class="text-lg md:text-xl font-semibold leading-tight">${escapeHTML(s.titre)}</h3>
+          </div>
+          <button class="openDlg shrink-0" aria-label="Détails ${escapeHTML(s.id)} — ${escapeHTML(s.titre)}" data-index="${idx}">
+            <img src="${escapeHTML(img)}" alt="PiXi — ${escapeHTML(s.id)}" class="h-16 w-16 md:h-20 md:w-20 object-contain pixi-img">
+          </button>
+        </div>
+        <p class="text-sm md:text-base text-white/80 mt-3">${escapeHTML(s.resume)}</p>
+        <div class="mt-4 flex items-center gap-2 text-xs text-white/70">
+          <span class="inline-block w-2.5 h-2.5 rounded-full" style="background:${DATA.gradients[idx]?.[0]||'#22d3ee'}"></span>
+          <span>${escapeHTML(s.notebook.replace(/^https?:\/\//,"").slice(0,42))}…</span>
+        </div>
+      `;
+      return card;
+    };
+
+    // Injecter cartes
+    DATA.sessions.forEach((s,i)=>track.appendChild(makeCard(s,i)));
+
+    // Gradient dynamique selon session observée
+    const applyGradient = (i)=>{
+      const g = DATA.gradients[i] || DATA.gradients[0];
+      document.documentElement.style.setProperty("--g1", g[0]);
+      document.documentElement.style.setProperty("--g2", g[1]);
+      $("#srLive").textContent = `Session active ${DATA.sessions[i].id} — ${DATA.sessions[i].titre}`;
+    };
+
+    // Observer la carte au centre
+    const io = new IntersectionObserver((ents)=>{
+      ents.filter(e=>e.isIntersecting).forEach(e=>{
+        const idx = +e.target.dataset.index;
+        applyGradient(idx);
+        currentIndex = idx;
+      });
+    },{ root: track, threshold: .6 });
+    $$(".hslide",track).forEach(el=>io.observe(el));
+
+    // Dialog léger (avec gestion focus/esc)
+    const dlg = $("#dialogRoot"); const dlgTitle=$("#dlgTitle"); const dlgDesc=$("#dlgDesc");
+    const dlgLink=$("#dlgLink"); const dlgImg=$("#dlgImg"); const dlgClose=$("#dlgClose");
+    let lastFocus=null;
+    const openDlg = (idx)=>{
+      const s = DATA.sessions[idx];
+      dlgTitle.textContent = s.titre;
+      dlgDesc.textContent  = s.resume;
+      dlgLink.href = s.notebook;
+      dlgImg.src = s.pixi || DATA.pixiFallback;
+      dlg.classList.remove("hidden"); lastFocus = document.activeElement; dlgClose.focus();
+    };
+    const closeDlg = ()=>{ dlg.classList.add("hidden"); if(lastFocus) lastFocus.focus(); };
+    dlg.addEventListener("click",(e)=>{ if(e.target===dlg) closeDlg(); });
+    dlgClose.addEventListener("click", closeDlg);
+    document.addEventListener("keydown",(e)=>{ if(e.key==="Escape" && !dlg.classList.contains("hidden")) closeDlg(); });
+
+    // Clic PiXi → ouvrir dialogue
+    track.addEventListener("click",(e)=>{
+      const btn = e.target.closest(".openDlg"); if(!btn) return;
+      openDlg(+btn.dataset.index);
+    });
+
+    // PiXi Pilot → session suivante (Shift+clic = précédente)
+    let currentIndex = 0;
+    const goTo = (i)=>{
+      const clamped = Math.max(0, Math.min(DATA.sessions.length-1, i));
+      const target = $(`article[data-index="${clamped}"]`, track);
+      if(target) target.scrollIntoView({behavior:"smooth", inline:"center", block:"nearest"});
+    };
+    $("#pilot").addEventListener("click",(e)=>{
+      if(e.shiftKey) goTo(currentIndex-1); else goTo(currentIndex+1);
+    });
+
+    // Navigation clavier ← →
+    document.addEventListener("keydown",(e)=>{
+      if(dlg.classList.contains("hidden")){
+        if(e.key==="ArrowRight") goTo(currentIndex+1);
+        if(e.key==="ArrowLeft")  goTo(currentIndex-1);
+      }
+    });
+
+    // Image du pilot = version par défaut (changez si besoin)
+    $("#pilotImg").src = DATA.pixiFallback || "assets/pixi-next.png";
+
+    // Init gradient au chargement
+    applyGradient(0);
+  </script>
+</body>
+</html>
