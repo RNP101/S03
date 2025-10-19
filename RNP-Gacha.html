@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gacha Machine RNP — Générateur de thématiques</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="color-scheme" content="dark light" />
+  <style>
+    :root { --bg:#121212; --card:#1E1E1E; --text:#EAEAEA; --gold:#D4AF37; }
+    @media (prefers-reduced-motion: reduce) { * { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; } }
+    .gacha-cabinet{background:radial-gradient(120% 120% at 50% -10%, rgba(212,175,55,.35), rgba(30,30,30,0) 30%),linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.2));box-shadow:inset 0 1px 0 rgba(255,255,255,.08), 0 10px 30px rgba(0,0,0,.35)}
+    .gacha-window{background:linear-gradient(180deg, rgba(0,0,0,.6), rgba(0,0,0,.75));border:1px solid rgba(255,255,255,.06);box-shadow:inset 0 -30px 40px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08)}
+    .spinning{filter:blur(1px) saturate(1.15)}
+    .btn-glow{box-shadow:0 0 0 0 rgba(212,175,55,.5);transition:box-shadow .2s}
+    .btn-glow:hover{box-shadow:0 0 0 6px rgba(212,175,55,.12)}
+    .result-card{background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,0));border:1px solid rgba(255,255,255,.08)}
+    .lock-btn[aria-pressed="true"]{background-color:rgba(212,175,55,.2);border-color:rgba(212,175,55,.5)}
+    .chip{display:inline-flex;align-items:center;gap:.5rem;padding:.35rem .6rem;border-radius:9999px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04)}
+  </style>
+  <link rel="preconnect" href="https://images.unsplash.com" crossorigin>
+  <script defer src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+</head>
+<body class="min-h-screen bg-[var(--bg)] text-[var(--text)] selection:bg-yellow-300/30 selection:text-yellow-900">
+  <header class="max-w-5xl mx-auto px-4 py-8">
+    <h1 class="text-3xl sm:text-4xl font-semibold tracking-tight">🎰 Gacha Machine RNP</h1>
+    <p class="mt-2 text-sm sm:text-base text-white/70">Trois rouleaux (Lieu, Style, Cible). <kbd class="px-1.5 py-0.5 rounded bg-white/10 border border-white/10 text-xs">Espace</kbd> pour lancer.</p>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 pb-24" id="main">
+    <section class="mb-6 flex flex-wrap items-center gap-3">
+      <button id="spinBtn" class="btn-glow inline-flex items-center gap-2 rounded-2xl px-5 py-3 bg-[var(--gold)] text-black font-semibold shadow hover:brightness-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold)]/60">🔁 Lancer</button>
+      <button id="editBtn" class="inline-flex items-center gap-2 rounded-2xl px-4 py-2 bg-white/10 hover:bg-white/15 border border-white/10">✎ Éditer les listes</button>
+      <button id="copyBtn" class="inline-flex items-center gap-2 rounded-2xl px-4 py-2 bg-white/10 hover:bg-white/15 border border-white/10">📋 Copier</button>
+      <button id="shotBtn" class="inline-flex items-center gap-2 rounded-2xl px-4 py-2 bg-white/10 hover:bg-white/15 border border-white/10" title="Capturer le résultat">📷 Capturer</button>
+      <label class="inline-flex items-center gap-2 ml-auto text-sm">
+        <input id="soundToggle" type="checkbox" class="h-4 w-4 accent-yellow-400" checked /> Son
+      </label>
+      <div class="relative">
+        <button id="helpBtn" aria-haspopup="true" aria-expanded="false" class="inline-flex items-center gap-2 rounded-2xl px-3 py-2 bg-white/10 hover:bg-white/15 border border-white/10">❓ Aide</button>
+        <div id="helpPopover" role="dialog" aria-modal="false" class="hidden absolute right-0 mt-2 w-72 rounded-2xl border border-white/10 bg-[var(--card)] p-3 text-sm shadow-xl">
+          <p class="font-medium mb-2">Raccourcis</p>
+          <ul class="space-y-1 text-white/80">
+            <li><kbd class="px-1 py-0.5 bg-white/10 rounded">Espace</kbd> Lancer</li>
+            <li><kbd class="px-1 py-0.5 bg-white/10 rounded">Ctrl/⌘ + E</kbd> Éditer</li>
+            <li><kbd class="px-1 py-0.5 bg-white/10 rounded">Ctrl/⌘ + T</kbd> Tests</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section aria-label="Rouleaux de la machine à sous" class="gacha-cabinet rounded-3xl p-4 grid sm:grid-cols-3 gap-4">
+      <div class="rounded-2xl bg-[var(--card)] border border-yellow-500/30 shadow-lg p-4">
+        <div class="flex items-center justify-between mb-2">
+          <h2 class="text-sm uppercase tracking-wider text-yellow-300/90">Lieu</h2>
+          <button class="lock-btn text-xs px-2 py-1 rounded-lg border border-white/10 bg-white/5" data-lock="lieu" aria-pressed="false" title="Verrouiller ce rouleau">🔓</button>
+        </div>
+        <div class="h-24 sm:h-28 grid place-items-center overflow-hidden rounded-xl gacha-window">
+          <div id="reel-lieu" class="text-2xl sm:text-3xl font-bold tracking-wide text-yellow-200 will-change-transform select-none">—</div>
+        </div>
+      </div>
+      <div class="rounded-2xl bg-[var(--card)] border border-yellow-500/30 shadow-lg p-4">
+        <div class="flex items-center justify-between mb-2">
+          <h2 class="text-sm uppercase tracking-wider text-yellow-300/90">Style</h2>
+          <button class="lock-btn text-xs px-2 py-1 rounded-lg border border-white/10 bg-white/5" data-lock="style" aria-pressed="false" title="Verrouiller ce rouleau">🔓</button>
+        </div>
+        <div class="h-24 sm:h-28 grid place-items-center overflow-hidden rounded-xl gacha-window">
+          <div id="reel-style" class="text-2xl sm:text-3xl font-bold tracking-wide text-yellow-200 will-change-transform select-none">—</div>
+        </div>
+      </div>
+      <div class="rounded-2xl bg-[var(--card)] border border-yellow-500/30 shadow-lg p-4">
+        <div class="flex items-center justify-between mb-2">
+          <h2 class="text-sm uppercase tracking-wider text-yellow-300/90">Cible</h2>
+          <button class="lock-btn text-xs px-2 py-1 rounded-lg border border-white/10 bg-white/5" data-lock="cible" aria-pressed="false" title="Verrouiller ce rouleau">🔓</button>
+        </div>
+        <div class="h-24 sm:h-28 grid place-items-center overflow-hidden rounded-xl gacha-window">
+          <div id="reel-cible" class="text-2xl sm:text-3xl font-bold tracking-wide text-yellow-200 will-change-transform select-none">—</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="mt-8">
+      <h2 class="sr-only">Proposition générée</h2>
+      <div class="result-card rounded-2xl p-4">
+        <p id="resultText" class="text-lg sm:text-xl leading-relaxed">Appuyez sur <strong>Lancer</strong> pour générer une thématique.</p>
+      </div>
+      <div aria-live="polite" aria-atomic="true" class="sr-only" id="resultLive"></div>
+    </section>
+
+    <section class="mt-6">
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="text-sm font-medium text-white/80">Derniers tirages (5)</h3>
+        <button id="clearHistory" class="text-xs px-2 py-1 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10">Effacer</button>
+      </div>
+      <div id="history" class="flex flex-wrap gap-2"></div>
+    </section>
+
+    <section id="editor" class="mt-10 hidden">
+      <div class="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">
+        <h2 class="text-base font-semibold mb-3">Éditer les mots-clés</h2>
+        <form id="listsForm" class="grid gap-4 sm:grid-cols-3">
+          <div class="flex flex-col"><label for="ta-lieu" class="text-sm mb-1">Lieu (séparés par des virgules)</label><textarea id="ta-lieu" class="min-h-[9rem] rounded-lg bg-black/30 border border-white/10 p-3 text-sm" spellcheck="false"></textarea></div>
+          <div class="flex flex-col"><label for="ta-style" class="text-sm mb-1">Style (séparés par des virgules)</label><textarea id="ta-style" class="min-h-[9rem] rounded-lg bg-black/30 border border-white/10 p-3 text-sm" spellcheck="false"></textarea></div>
+          <div class="flex flex-col"><label for="ta-cible" class="text-sm mb-1">Cible (séparés par des virgules)</label><textarea id="ta-cible" class="min-h-[9rem] rounded-lg bg-black/30 border border-white/10 p-3 text-sm" spellcheck="false"></textarea></div>
+          <div class="sm:col-span-3 flex items-center gap-3 pt-2">
+            <button id="saveLists" type="submit" class="rounded-xl px-4 py-2 bg-[var(--gold)] text-black font-semibold">💾 Enregistrer</button>
+            <button id="resetLists" type="button" class="rounded-xl px-4 py-2 bg-white/10 border border-white/10 hover:bg-white/15">↺ Réinitialiser</button>
+            <p class="text-xs text-white/60 ml-auto">Astuce : collez vos propres listes (ex.&nbsp;<em>Cotonou, Lagos, …</em>).</p>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section class="mt-10">
+      <h2 class="text-base font-semibold mb-3">Exemples</h2>
+      <div class="grid sm:grid-cols-2 gap-3">
+        <button data-preset="cot-afro-burna" class="text-left rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 p-4">➤ « concevoir un <strong>Cotonou</strong> qui soit <strong>Afrofuturiste</strong> selon la vision de <strong>Burna Boy</strong> »</button>
+        <button data-preset="lagos-eco-familles" class="text-left rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 p-4">➤ « réinventer <strong>Lagos</strong> façon <strong>éco-responsable</strong> pour <strong>les familles</strong> »</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="max-w-5xl mx-auto px-4 pb-10 text-xs text-white/50">© Générateur pédagogique — HTML+Tailwind Vanilla JS</footer>
+
+  <script>
+    const defaults = { lieu: ["Cotonou", "Lagos", "Paris", "Abidjan", "Nairobi", "Dakar", "Accra"], style: ["Afrofuturiste", "Minimaliste", "Baroque tropical", "Éco-responsable", "Cyberpunk", "Art déco", "Street-art"], cible: ["Burna Boy", "Étudiants", "Familles", "Touristes", "Entreprises locales", "Adolescents", "Artistes"] };
+    const lists = { lieu: [...defaults.lieu], style: [...defaults.style], cible: [...defaults.cible] };
+
+    const byId = id => document.getElementById(id);
+    const reelLieu = byId("reel-lieu");
+    const reelStyle = byId("reel-style");
+    const reelCible = byId("reel-cible");
+    const spinBtn = byId("spinBtn");
+    const editBtn = byId("editBtn");
+    const shotBtn = byId("shotBtn");
+    const copyBtn = byId("copyBtn");
+    const helpBtn = byId("helpBtn");
+    const helpPopover = byId("helpPopover");
+    const clearHistoryBtn = byId("clearHistory");
+    const historyEl = byId("history");
+    const editor = byId("editor");
+    const form = byId("listsForm");
+    const taLieu = byId("ta-lieu");
+    const taStyle = byId("ta-style");
+    const taCible = byId("ta-cible");
+    const soundToggle = byId("soundToggle");
+    const resultText = byId("resultText");
+    const resultLive = byId("resultLive");
+
+    const escapeHTML = (str) => str.replace(/[&<>"']/g, (m) => ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[m]));
+    const randomItem = (arr) => arr[Math.floor(Math.random() * arr.length)];
+    const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+
+    function soundOn(){ return !!(soundToggle && soundToggle.checked); }
+
+    let audioCtx = null;
+    function beep(freq = 880, time = 0.06) {
+      if (!soundOn()) return;
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.type = "triangle"; o.frequency.value = freq; g.gain.value = 0.001;
+      o.connect(g); g.connect(audioCtx.destination);
+      const now = audioCtx.currentTime;
+      g.gain.exponentialRampToValueAtTime(0.15, now + 0.01);
+      o.start(now);
+      g.gain.exponentialRampToValueAtTime(0.00001, now + time);
+      o.stop(now + time);
+    }
+    function thunk() { if (!soundOn()) return; beep(220, 0.08); setTimeout(() => beep(196, 0.08), 70); }
+
+    const locked = { lieu: false, style: false, cible: false };
+    const freq = { lieu: new Map(), style: new Map(), cible: new Map() };
+    const last5 = [];
+
+    function currText(el){ return el.textContent.replace(/\s+/g,' ').trim().replace(/^—$/,''); }
+
+    function spinReel(el, items, totalMs = 1600, forcedFinal = null) {
+      return new Promise((resolve) => {
+        if (!items.length) { el.textContent = "—"; return resolve("—"); }
+        const start = performance.now(); let lastTick = 0; el.classList.add('spinning');
+        function step(now) {
+          const t = Math.min(1, (now - start) / totalMs);
+          const speed = 18 + (220 * (1 - easeOutCubic(t)));
+          if (now - lastTick >= speed) {
+            el.style.transform = `translateY(${Math.random() * 8 - 4}px)`;
+            const word = randomItem(items);
+            el.innerHTML = `<span class=\"tracking-wide\">${escapeHTML(word)}</span>`;
+            lastTick = now; beep(900 - t * 650, 0.03);
+          }
+          if (t < 1) { requestAnimationFrame(step); }
+          else {
+            el.style.transform = "translateY(0)";
+            const finalWord = forcedFinal ?? randomItem(items);
+            el.innerHTML = `<span class=\"underline decoration-[var(--gold)]/70 underline-offset-4\">${escapeHTML(finalWord)}</span>`;
+            el.classList.remove('spinning'); thunk(); resolve(finalWord);
+          }
+        }
+        requestAnimationFrame(step);
+      });
+    }
+
+    let spinning = false;
+    async function spinAll(overrides = {}) {
+      if (spinning) return; spinning = true;
+      spinBtn.setAttribute("aria-busy", "true"); spinBtn.disabled = true;
+
+      const [w1, w2, w3] = await Promise.all([
+        locked.lieu  ? currText(reelLieu)  || lists.lieu[0]  : spinReel(reelLieu,  lists.lieu, 1500 + Math.random()*300, overrides.lieu || null),
+        locked.style ? currText(reelStyle) || lists.style[0] : (async () => { await new Promise(r => setTimeout(r, 120)); return spinReel(reelStyle, lists.style, 1800 + Math.random()*300, overrides.style || null); })(),
+        locked.cible ? currText(reelCible) || lists.cible[0] : (async () => { await new Promise(r => setTimeout(r, 240)); return spinReel(reelCible, lists.cible, 2100 + Math.random()*300, overrides.cible || null); })()
+      ]);
+
+      const sentence = `Concevoir un <strong>${escapeHTML(w1)}</strong> qui soit <strong>${escapeHTML(w2)}</strong> selon la vision de <strong>${escapeHTML(w3)}</strong>.`;
+      resultText.innerHTML = sentence;
+      resultLive.textContent = `Thématique: Concevoir un ${w1} qui soit ${w2} selon la vision de ${w3}.`;
+
+      maybeCelebrate(w1,w2,w3);
+      trackFreq('lieu', w1); trackFreq('style', w2); trackFreq('cible', w3);
+      pushHistory({lieu:w1, style:w2, cible:w3});
+
+      spinBtn.removeAttribute("aria-busy"); spinBtn.disabled = false; spinning = false;
+    }
+
+    function trackFreq(key, val){ freq[key].set(val, (freq[key].get(val)||0)+1); }
+    function maybeCelebrate(a,b,c){
+      const mql = window.matchMedia('(prefers-reduced-motion: reduce)');
+      if (mql.matches) return;
+      const fa=freq.lieu.get(a)||0, fb=freq.style.get(b)||0, fc=freq.cible.get(c)||0;
+      const rareCount = (fa<2)+(fb<2)+(fc<2);
+      if (rareCount>=2) confettiBurst();
+    }
+
+    function confettiBurst(){
+      const target = document.querySelector('.result-card');
+      const rect = target ? target.getBoundingClientRect() : {left:window.innerWidth/2, top:window.innerHeight/2, width:0, height:0};
+      const originX = rect.left + rect.width/2;
+      const originY = rect.top + 10;
+      const root = document.createElement('div');
+      Object.assign(root.style,{position:'fixed',inset:0,pointerEvents:'none',zIndex:50});
+      document.body.appendChild(root);
+      const colors=['#D4AF37','#22c55e','#60a5fa','#f472b6','#f59e0b'];
+      const N=90, g=0.35, drag=0.998;
+      const parts=[];
+      for(let i=0;i<N;i++){
+        const p=document.createElement('div');
+        const size=6+Math.random()*6;
+        Object.assign(p.style,{position:'absolute',width:size+'px',height:size+'px',background:colors[Math.floor(Math.random()*colors.length)],borderRadius:'2px',left:originX+'px',top:originY+'px'});
+        root.appendChild(p);
+        const angle=(Math.random()*Math.PI*2);
+        const speed=5+Math.random()*9;
+        parts.push({el:p,x:originX,y:originY,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed-6,rot:Math.random()*360,vr:(Math.random()*6-3)});
+      }
+      function frame(){
+        let alive=0;
+        for(const prt of parts){
+          prt.vy+=g; prt.vx*=drag; prt.vy*=drag; prt.x+=prt.vx; prt.y+=prt.vy; prt.rot+=prt.vr;
+          const s=prt.el.style; s.transform=`translate(${prt.x}px, ${prt.y}px) rotate(${prt.rot}deg)`; s.opacity = String(Math.max(0,1 - (prt.y-originY)/(window.innerHeight*0.9)));
+          if(prt.y < window.innerHeight+20 && parseFloat(s.opacity)>0) alive++;
+        }
+        if(alive>0) requestAnimationFrame(frame); else root.remove();
+      }
+      requestAnimationFrame(frame);
+    }
+
+    function pushHistory(combo){ last5.unshift(combo); if(last5.length>5) last5.pop(); renderHistory(); }
+    function renderHistory(){
+      historyEl.innerHTML='';
+      last5.forEach((c)=>{
+        const b=document.createElement('button');
+        b.className='chip hover:bg-white/10';
+        b.innerHTML=`${escapeHTML(c.lieu)} · ${escapeHTML(c.style)} · ${escapeHTML(c.cible)}`;
+        b.title='Réanalyser ce tirage';
+        b.addEventListener('click',()=>spinAll({lieu:c.lieu, style:c.style, cible:c.cible}));
+        historyEl.appendChild(b);
+      });
+    }
+
+    function loadEditorFields(){ taLieu.value=lists.lieu.join(', '); taStyle.value=lists.style.join(', '); taCible.value=lists.cible.join(', '); }
+    function parseCSV(text){ return text.split(',').map(s=>s.trim()).filter(Boolean).map(s=>s.replace(/\s+/g,' ')).slice(0,200); }
+    function saveListsFromEditor(){
+      const newLieu=parseCSV(taLieu.value), newStyle=parseCSV(taStyle.value), newCible=parseCSV(taCible.value);
+      if(!newLieu.length||!newStyle.length||!newCible.length){ alert('Chaque liste doit contenir au moins un élément.'); return; }
+      lists.lieu=newLieu; lists.style=newStyle; lists.cible=newCible;
+      [reelLieu,reelStyle,reelCible].forEach(el=>el.textContent='—');
+      resultText.textContent='Listes mises à jour. Lancez pour générer une thématique.';
+      editor.classList.add('hidden'); editBtn.setAttribute('aria-expanded','false');
+    }
+    function resetLists(){ lists.lieu=[...defaults.lieu]; lists.style=[...defaults.style]; lists.cible=[...defaults.cible]; loadEditorFields(); resultText.textContent='Listes réinitialisées. Lancez pour générer une thématique.'; }
+
+    function applyPreset(name){
+      if(name==='cot-afro-burna') return spinAll({ lieu:'Cotonou', style:'Afrofuturiste', cible:'Burna Boy' });
+      if(name==='lagos-eco-familles') return spinAll({ lieu:'Lagos', style:'Éco-responsable', cible:'Familles' });
+    }
+
+    function onKeydown(e){
+      const key=(e.key||'').toLowerCase();
+      if(key===' '||e.code==='Space'){ e.preventDefault(); spinAll(); }
+      else if((e.ctrlKey||e.metaKey)&&key==='e'){ e.preventDefault(); toggleEditor(); }
+      else if((e.ctrlKey||e.metaKey)&&key==='t'){ e.preventDefault(); runTests(); }
+    }
+
+    function toggleEditor(){
+      const isHidden=editor.classList.toggle('hidden');
+      editBtn.setAttribute('aria-expanded', String(!isHidden));
+      if(!isHidden){ loadEditorFields(); setTimeout(()=>taLieu.focus(),0); }
+    }
+
+    async function captureShot(){
+      try{
+        const target=document.querySelector('.result-card')||document.getElementById('main');
+        const canvas=await html2canvas(target,{ backgroundColor:null, scale:2 });
+        const data=canvas.toDataURL('image/png');
+        const a=document.createElement('a'); const ts=new Date().toISOString().replace(/[:.]/g,'-');
+        a.href=data; a.download=`gacha-rnp-${ts}.png`; a.click();
+      }catch(e){ alert('Échec de la capture. Réessayez.'); }
+    }
+
+    function copyResult(){
+      const text=resultText.innerText.trim();
+      if(!text) return;
+      if(navigator.clipboard&&navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).catch(()=>fallbackCopy(text));
+        return;
+      }
+      fallbackCopy(text);
+    }
+    function fallbackCopy(text){
+      const sel = window.getSelection();
+      const range = document.createRange();
+      range.selectNodeContents(resultText);
+      sel.removeAllRanges(); sel.addRange(range);
+      try { document.execCommand('copy'); } finally { sel.removeAllRanges(); }
+    }
+
+    document.addEventListener('click',(e)=>{
+      const t=e.target.closest('button'); if(!t) return;
+      if(t===spinBtn) spinAll();
+      if(t===editBtn) toggleEditor();
+      if(t===shotBtn) captureShot();
+      if(t===copyBtn) copyResult();
+      if(t.id==='resetLists') resetLists();
+      if(t.id==='clearHistory'){ last5.length=0; renderHistory(); }
+      if(t.dataset.preset) applyPreset(t.dataset.preset);
+      if(t.classList.contains('lock-btn')){
+        const key=t.getAttribute('data-lock'); locked[key]=!locked[key];
+        t.setAttribute('aria-pressed', String(locked[key])); t.textContent=locked[key]? '🔒':'🔓';
+      }
+      if(t===helpBtn){ const hidden=helpPopover.classList.toggle('hidden'); helpBtn.setAttribute('aria-expanded', String(!hidden)); }
+    });
+
+    form.addEventListener('submit',(e)=>{ e.preventDefault(); saveListsFromEditor(); });
+    document.addEventListener('keydown', onKeydown, { passive:false });
+
+    function assert(cond, msg){ if(!cond) throw new Error(msg); }
+    async function runTests(){
+      console.group('%cGacha Machine RNP — Tests','color:#D4AF37');
+      try{
+        const tmp=document.createElement('div'); document.body.appendChild(tmp);
+        const w=await spinReel(tmp,['A','B'],50); assert(typeof w==='string'&&w.length>=1,'spinReel doit retourner une chaîne non vide'); tmp.remove(); console.log('✓ Test 1 OK');
+        const before=JSON.stringify(lists); await applyPreset('cot-afro-burna'); const after=JSON.stringify(lists); assert(before===after,'applyPreset ne doit pas altérer lists'); console.log('✓ Test 2 OK');
+        await spinAll({ lieu:'TestVille', style:'TestStyle', cible:'TestCible' }); assert(resultText.innerText.includes('TestVille')&&resultText.innerText.includes('TestStyle')&&resultText.innerText.includes('TestCible'),'spinAll overrides doivent se refléter dans le résultat'); console.log('✓ Test 3 OK');
+        assert(typeof captureShot==='function','captureShot doit exister'); console.log('✓ Test 4 OK');
+      }catch(err){ console.error('❌ Test échoué :', err.message); }
+      finally{ console.groupEnd(); }
+    }
+
+    (function init(){
+      reelLieu.textContent='Cotonou'; reelStyle.textContent='Afrofuturiste'; reelCible.textContent='Burna Boy';
+      resultText.innerHTML=`Exemple: Concevoir un <strong>Cotonou</strong> qui soit <strong>Afrofuturiste</strong> selon la vision de <strong>Burna Boy</strong>.`;
+    })();
+  </script>
+</body>
+</html>
