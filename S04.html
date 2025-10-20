@@ -1,0 +1,159 @@
+<!DOCTYPE html><html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Timeline — RNP S2 (Studio de création, 10 sessions)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root{--bg:#0b0f14;--card:#10141a;--text:#E6E6E6;--accent:#C6A769;--g1:#0d1220;--g2:#1d2432}
+    html,body{height:100%}
+    body{background:linear-gradient(135deg,color-mix(in oklab,var(--g1) 88%,#000 12%),color-mix(in oklab,var(--g2) 88%,#000 12%));color:var(--text);transition:background 1.2s ease-in-out}
+    .htrack{scroll-snap-type:x mandatory}
+    .hslide{scroll-snap-align:center;transition:transform .35s ease,opacity .35s ease;opacity:.68;width:120px}
+    .pixi-img{filter:drop-shadow(0 10px 24px rgba(0,0,0,.45))}
+    body:not(.gridboard) #track .pixi-img{height:110px;width:110px}
+    @media (min-width:768px){body:not(.gridboard) #track .pixi-img{height:130px;width:130px}}
+    .overlay{background:rgba(8,10,14,.55)}
+    .dialog{background:var(--card)}
+    .timeline{position:relative;min-width:100%}
+    .rail{position:absolute;left:0;top:50%;transform:translateY(-50%);height:14px;border-radius:999px;opacity:.95;pointer-events:none;z-index:0;width:100%;background:linear-gradient(90deg,#0c1119 0%,#39424d 50%,#0c1119 100%)}
+    .rail:after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 22px,rgba(255,255,255,.09) 22px 24px);border-radius:999px}
+    .rail::before{content:"";position:absolute;top:0;bottom:0;width:22%;left:-30%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent);filter:blur(1px);mix-blend-mode:screen;animation:sweep 9s linear infinite}
+    @keyframes sweep{from{left:-30%}to{left:110%}}
+    .no-scrollbar{scrollbar-width:none}
+    .no-scrollbar::-webkit-scrollbar{display:none}
+    .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.5rem .75rem;border-radius:.75rem;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.05)}
+    .btn:hover{background:rgba(255,255,255,.08)}
+    #cursor{position:fixed;left:0;top:0;width:8px;height:8px;border-radius:999px;background:var(--accent);box-shadow:0 0 12px rgba(198,167,105,.65);pointer-events:none;opacity:.8;transform:translate(-50%,-50%);z-index:50}
+    @media (prefers-reduced-motion:reduce){.htrack{scroll-behavior:auto}.hslide{transition:none}body{transition:none}#cursor{display:none}.rail::before{display:none}}
+    .gridboard #track{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1.25rem;overflow:visible;scroll-snap-type:none;padding-block:2rem}
+    .gridboard .hslide{width:auto;opacity:1}
+    .gridboard .rail{display:none}
+    .badge{font-size:10px;letter-spacing:.08em;text-transform:uppercase}
+    .badge-fun{color:#a9d2ff}
+    .badge-theo{color:#ffd6a6}
+    .badge-tech{color:#b6ffc8}
+  </style>
+</head>
+<body class="antialiased selection:bg-yellow-500/10">
+  <div id="cursor"></div>
+  <header class="max-w-6xl mx-auto px-6 pt-8">
+    <h1 class="text-2xl md:text-3xl font-semibold tracking-tight">Timeline — RNP · Semestre 2 (Studio de création)</h1>
+    <p class="text-sm text-white/80 mt-1">Cadre agence/levée de fonds · Timeline horizontale · Cliquez sur PiXi pour le détail & NotebookLM</p>
+  </header>
+  <main class="mt-6 relative">
+    <section aria-label="Timeline des sessions S2 (10)" class="relative px-6">
+      <div id="track" class="timeline htrack overflow-x-auto no-scrollbar flex gap-12 py-16 scroll-smooth min-w-full" tabindex="0" role="list"></div>
+    </section>
+    <div class="absolute left-1/2 -bottom-12 -translate-x-1/2">
+      <button id="toggleView" class="btn text-white/85">Vue Storyboard</button>
+    </div>
+  </main>
+  <div id="dialogRoot" class="hidden fixed inset-0 overlay flex items-end sm:items-center justify-center p-4 z-50">
+    <div role="dialog" aria-modal="true" aria-labelledby="dlgTitle" aria-describedby="dlgDesc" class="dialog w-full max-w-md rounded-2xl shadow-2xl ring-1 ring-white/10 p-5">
+      <div class="flex items-start gap-3">
+        <img id="dlgImg" class="h-12 w-12 object-contain pixi-img" alt="" width="48" height="48" loading="lazy" decoding="async" />
+        <div class="min-w-0">
+          <h2 id="dlgTitle" class="text-base font-semibold"></h2>
+          <p id="dlgDesc" class="text-sm text-white/80 mt-1"></p>
+          <a id="dlgLink" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 mt-3 text-sm font-medium text-black bg-[var(--accent)] hover:brightness-95 px-3 py-1.5 rounded-lg transition" href="#">Ouvrir dans NotebookLM</a>
+        </div>
+      </div>
+      <div class="flex justify-end mt-4">
+        <button id="dlgClose" class="text-sm text-white/85 hover:text-white px-3 py-1.5 rounded-md ring-1 ring-white/10">Fermer (Esc)</button>
+      </div>
+    </div>
+  </div>
+  <div id="srLive" class="sr-only" aria-live="polite"></div>
+  <footer class="max-w-6xl mx-auto px-6 py-10 text-xs text-white/70 text-center">© 2025 · Projet <span class="font-medium text-[var(--accent)]">RNP</span> — Timeline S2</footer>
+  <script>
+    const DATA={
+      startSession:1,
+      gradients:[["#0d1220","#1d2432"],["#101726","#222a3a"],["#0f1623","#1f2533"],["#0e1522","#1f2634"],["#0f1420","#212738"],["#0e1520","#1d2734"],["#0f1422","#1f2939"],["#0e1522","#202a3b"],["#0f1624","#202a3c"],["#101626","#232c3e"]],
+      sessions:[
+        {id:"S1",type:"FUN",titre:"Kickoff Agence & Marque",resume:"Brief contraint, naming, codes visuels, objectifs S2.",notebook:"https://notebooklm.google.com/placeholder/S1",pixi:"assets/pixi-agence.png"},
+        {id:"S2",type:"THÉORIE",titre:"Storyboard & Arc Narratif",resume:"Story-beats, promesse produit, plan de tournage.",notebook:"https://notebooklm.google.com/placeholder/S2",pixi:"assets/pixi-story.png"},
+        {id:"S3",type:"TECHNIQUE",titre:"Production de Base",resume:"Scènes mères, caméras types, pipeline fichiers.",notebook:"https://notebooklm.google.com/placeholder/S3",pixi:"assets/pixi-setup.png"},
+        {id:"S4",type:"FUN",titre:"IA Vidéo & Assistant ‘Agence’",resume:"Séquences IA courtes + CustomGPT pour shotlists.",notebook:"https://notebooklm.google.com/placeholder/S4",pixi:"assets/pixi-ia-agency.png"},
+        {id:"S5",type:"THÉORIE",titre:"Caméras Avancées & Lumière Dirigée",resume:"Trajectoires clean, key/fill/rim narratifs.",notebook:"https://notebooklm.google.com/placeholder/S5",pixi:"assets/pixi-camera-adv.png"},
+        {id:"S6",type:"TECHNIQUE",titre:"Proof of Concept & QA",resume:"PoC vidéo + checklist qualité formelle.",notebook:"https://notebooklm.google.com/placeholder/S6",pixi:"assets/pixi-poc.png"},
+        {id:"S7",type:"FUN",titre:"Sprint 50 Renders",resume:"Itérations massives, filtres, variantes de DA.",notebook:"https://notebooklm.google.com/placeholder/S7",pixi:"assets/pixi-sprint.png"},
+        {id:"S8",type:"THÉORIE",titre:"Audit & Curation Multi-supports",resume:"Critères pro, sélection des 5 key visuals.",notebook:"https://notebooklm.google.com/placeholder/S8",pixi:"assets/pixi-audit.png"},
+        {id:"S9",type:"TECHNIQUE",titre:"Poster A1 & Mini-Portfolio",resume:"Mise en page studio, cohérence marque.",notebook:"https://notebooklm.google.com/placeholder/S9",pixi:"assets/pixi-portfolio.png"},
+        {id:"S10",type:"TECHNIQUE",titre:"Pitch Vidéo & Soutenance",resume:"Encodage, sous-titres, pitch investisseur.",notebook:"https://notebooklm.google.com/placeholder/S10",pixi:"assets/pixi-pitch.png"}
+      ],
+      pixiFallback:"assets/pixi-default.png"
+    };const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const escapeHTML=s=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m]));
+
+const track=$('#track');
+const short=(t,max=80)=>{t=String(t||'');return t.length>max?t.slice(0,max-1)+'…':t};
+const typeBadge=t=> t==="FUN"?"badge badge-fun":"THÉORIE"===t?"badge badge-theo":"badge badge-tech";
+
+const makeCard=(s,idx)=>{
+  const img=s.pixi||DATA.pixiFallback;
+  const el=document.createElement('article');
+  el.className='hslide shrink-0 relative text-center';
+  el.setAttribute('role','listitem');
+  el.dataset.index=idx; el.dataset.type=s.type||'';
+  el.innerHTML=`<button class="openDlg block mx-auto -mb-1" aria-label="Détails ${escapeHTML(s.id)} — ${escapeHTML(s.titre)}" data-index="${idx}" data-tip="${escapeHTML(short(s.resume))}"><img src="${escapeHTML(img)}" alt="PiXi — ${escapeHTML(s.id)}" class="h-20 w-20 md:h-24 md:w-24 object-contain pixi-img" width="96" height="96" loading="lazy" decoding="async" /></button><div class="mt-2"><span class="text-[11px] tracking-widest uppercase text-white/60">${escapeHTML(s.id)}</span><h3 class="text-sm md:text-base font-medium leading-tight">${escapeHTML(s.titre)}</h3><div class="${typeBadge(s.type)} mt-0.5">${escapeHTML(s.type||'')}</div></div>`;
+  return el;
+};
+
+DATA.sessions.forEach((s,i)=>track.appendChild(makeCard(s,i)));
+
+const rail=document.createElement('div');
+rail.className='rail';
+track.appendChild(rail);
+
+const buildRailGradient=()=>{rail.style.background='linear-gradient(90deg,#0c1119 0%,#39424d 50%,#0c1119 100%)'};
+
+let rafId=null;
+const layoutRail=()=>{if(rafId)cancelAnimationFrame(rafId);rafId=requestAnimationFrame(()=>{rail.style.width=track.scrollWidth+"px";buildRailGradient();})};
+layoutRail();
+addEventListener('resize',layoutRail);
+const imgs=[...track.querySelectorAll('img')];
+imgs.forEach(img=>{if(img.complete)return;img.addEventListener('load',layoutRail,{once:true})});
+if('ResizeObserver'in window){const ro=new ResizeObserver(layoutRail);ro.observe(track)}
+
+const applyGradient=i=>{const g=DATA.gradients[i%DATA.gradients.length]||DATA.gradients[0];document.documentElement.style.setProperty('--g1',g[0]);document.documentElement.style.setProperty('--g2',g[1]);$('#srLive').textContent=`Session active ${DATA.sessions[i].id} — ${DATA.sessions[i].titre}`};
+
+let currentIndex=0;let currentEl=null;
+const io=new IntersectionObserver(ents=>{ents.forEach(e=>{if(e.isIntersecting){currentIndex=+e.target.dataset.index;applyGradient(currentIndex);if(currentEl)currentEl.removeAttribute('aria-current');currentEl=e.target;currentEl.setAttribute('aria-current','true');}})},{root:track,threshold:.6});
+$$('.hslide',track).forEach(el=>io.observe(el));
+
+const dlg=$('#dialogRoot'),dlgTitle=$('#dlgTitle'),dlgDesc=$('#dlgDesc'),dlgLink=$('#dlgLink'),dlgImg=$('#dlgImg'),dlgClose=$('#dlgClose');
+let lastFocus=null;
+const openDlg=idx=>{const s=DATA.sessions[idx];dlgTitle.textContent=s.titre;dlgDesc.textContent=s.resume;dlgImg.src=s.pixi||DATA.pixiFallback;const isValid=s.notebook&&!s.notebook.includes('placeholder');dlgLink.href=isValid?s.notebook:'#';dlgLink.setAttribute('aria-disabled',String(!isValid));dlgLink.tabIndex=isValid?0:-1;dlgLink.classList.toggle('opacity-50',!isValid);dlgLink.classList.toggle('cursor-not-allowed',!isValid);dlgLink.classList.toggle('pointer-events-none',!isValid);dlg.classList.remove('hidden');lastFocus=document.activeElement;const focusables=[...dlg.querySelectorAll('a,button,input,select,textarea,[tabindex]:not([tabindex="-1"])')].filter(el=>!el.disabled);if(focusables.length){focusables[0].focus();}};
+const closeDlg=()=>{dlg.classList.add('hidden');if(lastFocus)lastFocus.focus()};
+dlg.addEventListener('click',e=>{if(e.target===dlg)closeDlg()});
+dlgClose.addEventListener('click',closeDlg);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!dlg.classList.contains('hidden'))closeDlg()});
+dlg.addEventListener('keydown',e=>{if(e.key!=='Tab')return;const focusables=[...dlg.querySelectorAll('a,button,input,select,textarea,[tabindex]:not([tabindex="-1"])')].filter(el=>!el.disabled&&el.offsetParent!==null);if(!focusables.length){e.preventDefault();return}const first=focusables[0],last=focusables[focusables.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}});
+
+track.addEventListener('click',e=>{const btn=e.target.closest('.openDlg');if(!btn)return;openDlg(+btn.dataset.index)});
+
+const prefersReduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const goTo=i=>{const c=Math.max(0,Math.min(DATA.sessions.length-1,i));const t=$(`article[data-index="${c}"]`);if(t)t.scrollIntoView({behavior:prefersReduced?'auto':'smooth',inline:'center',block:'nearest'})};
+document.addEventListener('keydown',e=>{if(dlg.classList.contains('hidden')){if(e.key==='ArrowRight')goTo(currentIndex+1);if(e.key==='ArrowLeft')goTo(currentIndex-1)}});
+
+const slides=$$('.hslide',track);
+let rafDepth=null;
+const updateDepth=()=>{if(rafDepth)return;rafDepth=requestAnimationFrame(()=>{const tb=track.getBoundingClientRect();const center=tb.left+tb.width/2;slides.forEach(el=>{const rb=el.getBoundingClientRect();const ec=rb.left+rb.width/2;const d=Math.min(1,Math.abs((ec-center)/(tb.width/2)));const scale=1-0.15*d;const y=8*d;const op=0.45+0.55*(1-d);el.style.transform=`translateY(${y}px) scale(${scale})`;el.style.opacity=op.toFixed(3)});rafDepth=null})};
+updateDepth();
+track.addEventListener('scroll',updateDepth,{passive:true});
+addEventListener('resize',updateDepth);
+
+const startAt=Math.max(0,Math.min((DATA.startSession||1)-1,DATA.sessions.length-1));
+goTo(startAt);
+applyGradient(startAt);
+
+const toggle=$('#toggleView');
+toggle.addEventListener('click',()=>{document.body.classList.toggle('gridboard');toggle.textContent=document.body.classList.contains('gridboard')?'Vue Timeline':'Vue Storyboard';layoutRail()});
+
+(function(){const c=$('#cursor');if(!c)return;let x=0,y=0,tx=0,ty=0,raf;const loop=()=>{tx+=(x-tx)*.18;ty+=(y-ty)*.18;c.style.transform=`translate(${tx}px, ${ty}px)`;raf=requestAnimationFrame(loop)};addEventListener('mousemove',e=>{x=e.clientX;y=e.clientY;if(!raf)loop()});addEventListener('mouseleave',()=>{cancelAnimationFrame(raf);raf=null;c.style.opacity='.0'});addEventListener('mouseenter',()=>{c.style.opacity='.8'})})();
+
+  </script>
+</body>
+</html>
