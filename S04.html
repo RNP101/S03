@@ -7,45 +7,30 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* =============================
-       THÈME GLOBAL (Studio S2)
-       - Couleurs, fond dégradé animé via --g1/--g2
-       ============================= */
+    /* Thème studio S2 */
     :root{--bg:#0b0f14;--card:#10141a;--text:#E6E6E6;--accent:#C6A769;--g1:#0d1220;--g2:#1d2432}
     html,body{height:100%}
     body{background:linear-gradient(135deg,color-mix(in oklab,var(--g1) 88%,#000 12%),color-mix(in oklab,var(--g2) 88%,#000 12%));color:var(--text);transition:background 1.2s ease-in-out}
 
-    /* =============================
-       TIMELINE HORIZONTALE
-       - Snap horizontal, items qui respirent
-       ============================= */
+    /* Timeline horizontale */
     .htrack{scroll-snap-type:x mandatory}
     .hslide{scroll-snap-align:center;transition:transform .35s ease,opacity .35s ease;opacity:.68;width:120px}
     .pixi-img{filter:drop-shadow(0 10px 24px rgba(0,0,0,.45))}
-    /* PiXi plus grands uniquement en mode Timeline */
     body:not(.gridboard) #track .pixi-img{height:110px;width:110px}
     @media (min-width:768px){body:not(.gridboard) #track .pixi-img{height:130px;width:130px}}
 
-    /* =============================
-       MODALE & OVERLAY
-       ============================= */
+    /* Modale */
     .overlay{background:rgba(8,10,14,.55)}
     .dialog{background:var(--card)}
 
-    /* =============================
-       BANDE « CINÉ » (RAIL)
-       - Débordement à gauche/droite pour centrer S1 & S10
-       - Texture légère + balayage discret
-       ============================= */
+    /* Rail cinéma (débordement g/d géré en JS) */
     .timeline{position:relative;min-width:100%}
-    .rail{position:absolute;left:-10%;top:50%;transform:translateY(-50%);height:14px;border-radius:999px;opacity:.95;pointer-events:none;z-index:0;width:120%;background:linear-gradient(90deg,#0c1119 0%,#39424d 50%,#0c1119 100%)}
+    .rail{position:absolute;top:50%;transform:translateY(-50%);height:14px;border-radius:999px;opacity:.95;pointer-events:none;z-index:0;background:linear-gradient(90deg,#0c1119 0%,#39424d 50%,#0c1119 100%)}
     .rail:after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 22px,rgba(255,255,255,.09) 22px 24px);border-radius:999px}
     .rail::before{content:"";position:absolute;top:0;bottom:0;width:22%;left:-30%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent);filter:blur(1px);mix-blend-mode:screen;animation:sweep 9s linear infinite}
     @keyframes sweep{from{left:-30%}to{left:110%}}
 
-    /* =============================
-       DÉTAILS UI
-       ============================= */
+    /* Détails UI */
     .no-scrollbar{scrollbar-width:none}
     .no-scrollbar::-webkit-scrollbar{display:none}
     .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.5rem .75rem;border-radius:.75rem;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.05)}
@@ -53,14 +38,12 @@
     #cursor{position:fixed;left:0;top:0;width:8px;height:8px;border-radius:999px;background:var(--accent);box-shadow:0 0 12px rgba(198,167,105,.65);pointer-events:none;opacity:.8;transform:translate(-50%,-50%);z-index:50}
     @media (prefers-reduced-motion:reduce){.htrack{scroll-behavior:auto}.hslide{transition:none}body{transition:none}#cursor{display:none}.rail::before{display:none}}
 
-    /* =============================
-       VUE STORYBOARD (grille 3x4)
-       ============================= */
+    /* Vue Storyboard */
     .gridboard #track{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1.25rem;overflow:visible;scroll-snap-type:none;padding-block:2rem}
     .gridboard .hslide{width:auto;opacity:1}
     .gridboard .rail{display:none}
 
-    /* Étiquettes de cycle FUN/THÉORIE/TECHNIQUE (texte seulement) */
+    /* Badges de cycle (texte) */
     .badge{font-size:10px;letter-spacing:.08em;text-transform:uppercase}
     .badge-fun{color:#a9d2ff}
     .badge-theo{color:#ffd6a6}
@@ -68,28 +51,20 @@
   </style>
 </head>
 <body class="antialiased selection:bg-yellow-500/10">
-  <!-- Curseur décoratif doré (désactivé si prefers-reduced-motion) -->
   <div id="cursor"></div>
-
-  <!-- En‑tête → sobre, garde la même IA visuelle que S1 -->
   <header class="max-w-6xl mx-auto px-6 pt-8">
     <h1 class="text-2xl md:text-3xl font-semibold tracking-tight">Timeline — RNP · Semestre 2 (Studio de création)</h1>
     <p class="text-sm text-white/80 mt-1">Cadre agence/levée de fonds · Timeline horizontale · Cliquez sur PiXi pour le détail & NotebookLM</p>
   </header>
-
   <main class="mt-6 relative">
     <section aria-label="Timeline des sessions S2 (10)" class="relative px-6">
-      <!-- Piste horizontale : les cartes sont injectées en JS -->
       <div id="track" class="timeline htrack overflow-x-auto no-scrollbar flex gap-12 py-16 scroll-smooth min-w-full" tabindex="0" role="list"></div>
     </section>
-
-    <!-- Bascule de vue centrée sous la timeline -->
     <div class="absolute left-1/2 -bottom-12 -translate-x-1/2">
       <button id="toggleView" class="btn text-white/85">Vue Storyboard</button>
     </div>
   </main>
 
-  <!-- Modale d’information (focus trap + ARIA) -->
   <div id="dialogRoot" class="hidden fixed inset-0 overlay flex items-end sm:items-center justify-center p-4 z-50">
     <div role="dialog" aria-modal="true" aria-labelledby="dlgTitle" aria-describedby="dlgDesc" class="dialog w-full max-w-md rounded-2xl shadow-2xl ring-1 ring-white/10 p-5">
       <div class="flex items-start gap-3">
@@ -106,18 +81,11 @@
     </div>
   </div>
 
-  <!-- Zone live SR pour annoncer la session active -->
   <div id="srLive" class="sr-only" aria-live="polite"></div>
-
   <footer class="max-w-6xl mx-auto px-6 py-10 text-xs text-white/70 text-center">© 2025 · Projet <span class="font-medium text-[var(--accent)]">RNP</span> — Timeline S2</footer>
 
   <script>
-    // =============================
-    // 1) CONFIG (haut de fichier)
-    //    - startSession : session centrée au chargement
-    //    - gradients    : paires de couleurs appliquées au fond
-    //    - sessions     : 10 cartes (id/titre/résumé/lien/img)
-    // =============================
+    // 1) CONFIG — startSession sert aussi de "progression atteinte" (verrou des notebooks au-delà)
     const DATA={
       startSession:1,
       gradients:[["#0d1220","#1d2432"],["#101726","#222a3a"],["#0f1623","#1f2533"],["#0e1522","#1f2634"],["#0f1420","#212738"],["#0e1520","#1d2734"],["#0f1422","#1f2939"],["#0e1522","#202a3b"],["#0f1624","#202a3c"],["#101626","#232c3e"]],
@@ -136,16 +104,11 @@
       pixiFallback:"assets/pixi-default.png"
     };
 
-    // =============================
-    // 2) UTILITAIRES DOM + échappement HTML
-    // =============================
+    // 2) Utils DOM
     const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
     const escapeHTML=s=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m]));
 
-    // =============================
-    // 3) RENDU DES CARTES SUR LA PISTE
-    //    - chaque carte = bouton (ouvre modale) + légendes
-    // =============================
+    // 3) Rendu des cartes
     const track=$('#track');
     const short=(t,max=80)=>{t=String(t||'');return t.length>max?t.slice(0,max-1)+'…':t};
     const typeBadge=t=> t==="FUN"?"badge badge-fun":"THÉORIE"===t?"badge badge-theo":"badge badge-tech";
@@ -160,56 +123,41 @@
       return el;
     };
 
-    // Injection : 10 cartes
     DATA.sessions.forEach((s,i)=>track.appendChild(makeCard(s,i)));
 
-    // =============================
-    // 4) BANDE CINÉ : largeur basée sur scrollWidth
-    //    - rAF pour grouper les reflows
-    //    - débordement 10% de chaque côté
-    // =============================
+    // 4) Rail : largeur = scrollWidth + viewport, centré pour couvrir S1 et S10
     const rail=document.createElement('div');
     rail.className='rail';
     track.appendChild(rail);
 
-    const buildRailGradient=()=>{ rail.style.background='linear-gradient(90deg,#0c1119 0%,#39424d 50%,#0c1119 100%)' };
-
-    let rafId=null;
+    let rafRail=null;
     const layoutRail=()=>{
-      if(rafId) cancelAnimationFrame(rafId);
-      rafId=requestAnimationFrame(()=>{
-        const w=track.scrollWidth*1.2;   // 120% → déborde à G/D
-        rail.style.width=w+"px";
-        rail.style.left='-10%';
-        buildRailGradient();
+      if(rafRail) cancelAnimationFrame(rafRail);
+      rafRail=requestAnimationFrame(()=>{
+        const vw=track.getBoundingClientRect().width; // largeur du viewport de la piste
+        rail.style.width=(track.scrollWidth + vw)+"px"; // ajoute 1 viewport → déborde aux deux extrémités
+        rail.style.left=(-vw/2)+"px";                  // décale de la moitié du viewport vers la gauche
       });
     };
-
-    layoutRail();                   // init
+    layoutRail();
     addEventListener('resize',layoutRail);
-    // Recalcule quand les images arrivent
     [...track.querySelectorAll('img')].forEach(img=>{ if(img.complete) return; img.addEventListener('load',layoutRail,{once:true}) });
-    if('ResizeObserver' in window){ const ro=new ResizeObserver(layoutRail); ro.observe(track) }
+    if('ResizeObserver' in window){ new ResizeObserver(layoutRail).observe(track) }
 
-    // =============================
-    // 5) GRADIENT DE FOND DYNAMIQUE (selon l'item centré)
-    // =============================
+    // 5) Gradient de fond dynamique
     const applyGradient=i=>{
       const g=DATA.gradients[i%DATA.gradients.length]||DATA.gradients[0];
       document.documentElement.style.setProperty('--g1',g[0]);
       document.documentElement.style.setProperty('--g2',g[1]);
-      $('#srLive').textContent=`Session active ${DATA.sessions[i].id} — ${DATA.sessions[i].titre}`; // feedback SR
+      $('#srLive').textContent=`Session active ${DATA.sessions[i].id} — ${DATA.sessions[i].titre}`;
     };
 
-    // =============================
-    // 6) REPÉRAGE DE L'ÉLÉMENT CENTRÉ + EFFET "ZOOM-OUT"
-    // =============================
+    // 6) Repérage de l'item centré + effet de profondeur
     let currentIndex=0; let currentEl=null;
     const io=new IntersectionObserver(ents=>{
       ents.forEach(e=>{
         if(e.isIntersecting){
-          currentIndex=+e.target.dataset.index;
-          applyGradient(currentIndex);
+          currentIndex=+e.target.dataset.index; applyGradient(currentIndex);
           if(currentEl) currentEl.removeAttribute('aria-current');
           currentEl=e.target; currentEl.setAttribute('aria-current','true');
         }
@@ -217,21 +165,16 @@
     },{root:track,threshold:.6});
     $$('.hslide',track).forEach(el=>io.observe(el));
 
-    // Effet de profondeur en fonction de la distance au centre de la piste
     const slides=$$('.hslide',track);
     let rafDepth=null;
     const updateDepth=()=>{
       if(rafDepth) return;
       rafDepth=requestAnimationFrame(()=>{
-        const tb=track.getBoundingClientRect();
-        const center=tb.left+tb.width/2;
+        const tb=track.getBoundingClientRect(); const center=tb.left+tb.width/2;
         slides.forEach(el=>{
-          const rb=el.getBoundingClientRect();
-          const ec=rb.left+rb.width/2;
-          const d=Math.min(1,Math.abs((ec-center)/(tb.width/2))); // 0→1
-          const scale=1-0.15*d;    // zoom-out vers bords
-          const y=8*d;             // petite translation Y
-          const op=0.45+0.55*(1-d);// atténuation
+          const rb=el.getBoundingClientRect(); const ec=rb.left+rb.width/2;
+          const d=Math.min(1,Math.abs((ec-center)/(tb.width/2)));
+          const scale=1-0.15*d, y=8*d, op=0.45+0.55*(1-d);
           el.style.transform=`translateY(${y}px) scale(${scale})`;
           el.style.opacity=op.toFixed(3);
         });
@@ -242,72 +185,62 @@
     track.addEventListener('scroll',updateDepth,{passive:true});
     addEventListener('resize',updateDepth);
 
-    // =============================
-    // 7) MODALE (ouverture/fermeture + focus trap + ESC)
-    // =============================
+    // 7) Modale + verrou NotebookLM au-delà de startSession
     const dlg=$('#dialogRoot'), dlgTitle=$('#dlgTitle'), dlgDesc=$('#dlgDesc'), dlgLink=$('#dlgLink'), dlgImg=$('#dlgImg'), dlgClose=$('#dlgClose');
     let lastFocus=null;
 
     const openDlg=idx=>{
       const s=DATA.sessions[idx];
       dlgTitle.textContent=s.titre; dlgDesc.textContent=s.resume; dlgImg.src=s.pixi||DATA.pixiFallback;
-      const isValid=s.notebook && !s.notebook.includes('placeholder');
-      dlgLink.href=isValid?s.notebook:'#';
-      dlgLink.setAttribute('aria-disabled',String(!isValid));
-      dlgLink.tabIndex=isValid?0:-1;
-      dlgLink.classList.toggle('opacity-50',!isValid);
-      dlgLink.classList.toggle('cursor-not-allowed',!isValid);
-      dlgLink.classList.toggle('pointer-events-none',!isValid);
-
+      const notebookOk = s.notebook && !s.notebook.includes('placeholder');
+      const withinProgress = idx <= (DATA.startSession-1); // S1..S{startSession} accessibles
+      const canAccess = notebookOk && withinProgress;
+      dlgLink.href = canAccess ? s.notebook : '#';
+      dlgLink.setAttribute('aria-disabled', String(!canAccess));
+      dlgLink.tabIndex = canAccess ? 0 : -1;
+      dlgLink.classList.toggle('opacity-50', !canAccess);
+      dlgLink.classList.toggle('cursor-not-allowed', !canAccess);
+      dlgLink.classList.toggle('pointer-events-none', !canAccess);
       dlg.classList.remove('hidden');
       lastFocus=document.activeElement;
       const focusables=[...dlg.querySelectorAll('a,button,input,select,textarea,[tabindex]:not([tabindex="-1"])')].filter(el=>!el.disabled);
       if(focusables.length){ focusables[0].focus(); }
     };
 
-    const closeDlg=()=>{ dlg.classList.add('hidden'); if(lastFocus) lastFocus.focus(); };
+    const closeDlg=()=>{ dlg.classList.add('hidden'); if(lastFocus) lastFocus.focus() };
     dlg.addEventListener('click',e=>{ if(e.target===dlg) closeDlg() });
     dlgClose.addEventListener('click',closeDlg);
     document.addEventListener('keydown',e=>{ if(e.key==='Escape' && !dlg.classList.contains('hidden')) closeDlg() });
-
-    // Focus trap dans la modale (Tab/Shift+Tab bouclent)
     dlg.addEventListener('keydown',e=>{
       if(e.key!=='Tab') return;
       const focusables=[...dlg.querySelectorAll('a,button,input,select,textarea,[tabindex]:not([tabindex="-1"])')].filter(el=>!el.disabled && el.offsetParent!==null);
-      if(!focusables.length){ e.preventDefault(); return; }
+      if(!focusables.length){ e.preventDefault(); return }
       const first=focusables[0], last=focusables[focusables.length-1];
-      if(e.shiftKey && document.activeElement===first){ e.preventDefault(); last.focus(); }
-      else if(!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); }
+      if(e.shiftKey && document.activeElement===first){ e.preventDefault(); last.focus() }
+      else if(!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus() }
     });
 
-    // Ouverture via clic sur une carte
     track.addEventListener('click',e=>{ const btn=e.target.closest('.openDlg'); if(!btn) return; openDlg(+btn.dataset.index) });
 
-    // =============================
-    // 8) NAVIGATION CLAVIER GAUCHE/DROITE + DÉMARRAGE
-    // =============================
+    // 8) Navigation clavier + démarrage centré
     const prefersReduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
     const goTo=i=>{ const c=Math.max(0,Math.min(DATA.sessions.length-1,i)); const t=$(`article[data-index="${c}"]`); if(t) t.scrollIntoView({behavior:prefersReduced?'auto':'smooth',inline:'center',block:'nearest'}) };
     document.addEventListener('keydown',e=>{ if(dlg.classList.contains('hidden')){ if(e.key==='ArrowRight') goTo(currentIndex+1); if(e.key==='ArrowLeft') goTo(currentIndex-1); } });
 
-    // Centrer sur la session choisie au chargement
     const startAt=Math.max(0,Math.min((DATA.startSession||1)-1,DATA.sessions.length-1));
     goTo(startAt);
     applyGradient(startAt);
+    layoutRail();
 
-    // =============================
-    // 9) BASCULE VUE TIMELINE ↔ STORYBOARD
-    // =============================
+    // 9) Bascule Storyboard / Timeline
     const toggle=$('#toggleView');
     toggle.addEventListener('click',()=>{
       document.body.classList.toggle('gridboard');
       toggle.textContent=document.body.classList.contains('gridboard')?'Vue Timeline':'Vue Storyboard';
-      layoutRail(); // recalcul au retour en timeline
+      layoutRail(); // recalcul rail au retour en timeline
     });
 
-    // =============================
-    // 10) CURSEUR DORÉ (rAF → suivis fluides)
-    // =============================
+    // 10) Curseur doré
     (function(){
       const c=$('#cursor'); if(!c) return;
       let x=0,y=0, tx=0, ty=0, raf;
