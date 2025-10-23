@@ -3,310 +3,280 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Timeline — RNP S1 (Représentation & Narration du Projet)</title>
+  <title>Timeline — RNP S2 (Studio de création)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* Palette et variables de thème */
-    :root{--bg:#0b0f14;--card:#12171d;--text:#E6E6E6;--gold:#D4AF37;--g1:#0f172a;--g2:#1f2937}
-
-    /* Fond en dégradé piloté par --g1/--g2 (changé au scroll) */
+    :root{--bg:#0b0f14;--card:#10141a;--text:#E6E6E6;--accent:#C6A769;--g1:#0d1220;--g2:#1d2432}
     html,body{height:100%}
-    body{background:linear-gradient(135deg,color-mix(in oklab,var(--g1) 88%,#000 12%),color-mix(in oklab,var(--g2) 88%,#000 12%));color:var(--text);transition:background 1.2s ease-in-out}
-
-    /* Conteneur de scroll horizontal avec snap sur les éléments */
+    body{background:#111827;color:var(--text);transition:background 1.2s ease-in-out,filter .5s ease-in-out;filter:brightness(var(--exp,1)) contrast(1.02)}
+    @supports (background: color-mix(in oklab, #000 50%, #fff 50%)){
+      body{background:linear-gradient(135deg,color-mix(in oklab,var(--g1) 88%,#000 12%),color-mix(in oklab,var(--g2) 88%,#000 12%));}
+    }
+    .skip{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
+    .skip:focus{left:16px;top:16px;width:auto;height:auto;padding:.5rem .75rem;background:#0f172a;color:#fff;border-radius:.5rem;z-index:60}
     .htrack{scroll-snap-type:x mandatory}
-    .hslide{scroll-snap-align:center;transition:transform .35s ease,opacity .35s ease;opacity:.65;width:120px}
-
-    /* Style d'image PiXi + agrandissement spécifique à la vue Timeline (pas Storyboard) */
+    .hslide{scroll-snap-align:center;transition:transform .35s ease,opacity .35s ease;opacity:.68;width:120px}
     .pixi-img{filter:drop-shadow(0 10px 24px rgba(0,0,0,.45))}
     body:not(.gridboard) #track .pixi-img{height:110px;width:110px}
     @media (min-width:768px){body:not(.gridboard) #track .pixi-img{height:130px;width:130px}}
-
-    /* Modale et overlay */
-    .overlay{background:rgba(0,0,0,.5)}
+    .hslide.locked .openDlg{cursor:not-allowed}
+    .hslide.locked .label-sid{opacity:.75}
+    .hslide:not(.locked) .openDlg:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:12px}
+    #jumpStart:focus-visible,.btn:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+    body:not(.gridboard) #track::before,body:not(.gridboard) #track::after{content:"";flex:0 0 50vw}
+    .overlay{background:rgba(8,10,14,.55)}
     .dialog{background:var(--card)}
-
-    /* Rail = « bande cinéma » sous les PiXi */
     .timeline{position:relative;min-width:100%}
-    .rail{position:absolute;left:0;top:50%;transform:translateY(-50%);height:12px;border-radius:999px;opacity:.95;pointer-events:none;z-index:0;width:100%;background:linear-gradient(90deg,#0f1318 0%,#3a3f45 50%,#0f1318 100%)}
-    .rail:after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 22px,rgba(255,255,255,.08) 22px 24px);border-radius:999px}
-    /* Balayage lumineux discret pour évoquer une pellicule qui défile */
-    .rail::before{content:"";position:absolute;top:0;bottom:0;width:22%;left:-30%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.07),transparent);filter:blur(1px);mix-blend-mode:screen;animation:sweep 9s linear infinite}
-    @keyframes sweep{from{left:-30%}to{left:110%}}
-
-    /* Masquer les barres natives pour un look propre */
+    #track{position:relative;z-index:1}
+    .rail{position:absolute;top:50%;transform:translateY(-50%);height:14px;border-radius:999px;opacity:.95;pointer-events:none;z-index:0;background:linear-gradient(90deg,#0c1119 0%,#39424d 50%,#0c1119 100%)}
+    .rail:after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 22px,rgba(255,255,255,.09) 22px 24px);border-radius:999px}
+    .ticks{position:absolute;top:calc(50% + 14px);height:16px;pointer-events:none;z-index:0}
+    .tick{position:absolute;top:0;width:2px;height:10px;background:rgba(255,255,255,.32);border-radius:1px}
     .no-scrollbar{scrollbar-width:none}
     .no-scrollbar::-webkit-scrollbar{display:none}
-
-    /* Bouton générique */
     .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.5rem .75rem;border-radius:.75rem;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.05)}
     .btn:hover{background:rgba(255,255,255,.08)}
-
-    /* Curseur décoratif (désactivé en prefers-reduced-motion) */
-    #cursor{position:fixed;left:0;top:0;width:8px;height:8px;border-radius:999px;background:var(--gold);box-shadow:0 0 12px rgba(212,175,55,.65);pointer-events:none;opacity:.8;transform:translate(-50%,-50%);z-index:50}
-    @media (prefers-reduced-motion:reduce){.htrack{scroll-behavior:auto}.hslide{transition:none}body{transition:none}#cursor{display:none}.rail::before{display:none}}
-
-    /* Vue Storyboard = grille 3×4 sans rail, items fluides */
+    #jumpStart{position:fixed;right:1.5rem;bottom:5rem}
+    @media (min-width:640px){#jumpStart{bottom:1.5rem}}
+    #cursor{position:fixed;left:0;top:0;width:8px;height:8px;border-radius:999px;background:var(--accent);box-shadow:0 0 12px rgba(198,167,105,.65);pointer-events:none;opacity:.8;transform:translate(-50%,-50%);z-index:50}
     .gridboard #track{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1.25rem;overflow:visible;scroll-snap-type:none;padding-block:2rem}
     .gridboard .hslide{width:auto;opacity:1}
-    .gridboard .rail{display:none}
+    .gridboard .rail,.gridboard .ticks{display:none}
+    .badge{font-size:10px;letter-spacing:.08em;text-transform:uppercase}
+    .badge-fun{color:#a9d2ff}
+    .badge-theo{color:#ffd6a6}
+    .badge-tech{color:#b6ffc8}
+    .skel{position:absolute;inset:0;border-radius:12px;background:linear-gradient(135deg,#0d121a,#1b232f);overflow:hidden}
+    .skel::after{content:"";position:absolute;inset:-40% -60%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.06),transparent);transform:rotate(12deg);animation:shine 1.4s linear infinite}
+    @keyframes shine{to{transform:translateX(120%) rotate(12deg)}}
+    #vignette{position:fixed;inset:0;pointer-events:none;z-index:5;background:radial-gradient(ellipse at 50% 50%, rgba(0,0,0,0) 58%, rgba(0,0,0,.18) 78%, rgba(0,0,0,.32) 100%)}
+    @keyframes rack{0%{filter:blur(.8px) saturate(.9)}100%{filter:blur(0) saturate(1)}}
+    .hslide:not(.locked) .openDlg:hover .pixi-img{animation:rack .15s ease both}
+    body.zoomed #pageMain{transform:scale(.985);filter:blur(.3px);transition:transform .25s ease,filter .25s ease}
+    #pageMain{transition:transform .25s ease,filter .25s ease}
   </style>
 </head>
-<body class="antialiased selection:bg-yellow-500/20">
-  <!-- Petit curseur doré qui « suit » la souris -->
+<body class="antialiased selection:bg-yellow-500/10">
+  <a href="#track" class="skip">Aller à la timeline</a>
   <div id="cursor"></div>
-
-  <!-- En‑tête sobre -->
-  <header class="max-w-6xl mx-auto px-6 pt-8">
-    <h1 class="text-2xl md:text-3xl font-semibold tracking-tight">Timeline — RNP · Semestre 1</h1>
-    <p class="text-sm text-white/80 mt-1">12 sessions · Timeline horizontale · Cliquez sur PiXi pour le détail & NotebookLM</p>
+  <div id="vignette" aria-hidden="true"></div>
+  <header class="max-w-6xl mx-auto px-6 pt-8" id="pageHeader">
+    <h1 class="text-2xl md:text-3xl font-semibold tracking-tight">Timeline — RNP · Semestre 2 (Studio de création)</h1>
+    <p class="text-sm text-white/80 mt-1">Données chargées via <code>data/s2.json</code> · Cliquez sur PiXi pour NotebookLM</p>
+    <div id="status" class="mt-3 text-xs text-white/70"></div>
   </header>
-
-  <!-- Zone principale : timeline + bouton de bascule centré en bas -->
-  <main class="mt-6 relative">
-    <section aria-label="Timeline des sessions S1" class="relative px-6">
-      <!-- Piste horizontale où les cartes sont injectées en JS -->
-      <div id="track" class="timeline htrack overflow-x-auto no-scrollbar flex gap-12 py-16 scroll-smooth min-w-full" tabindex="0" role="list"></div>
+  <main class="mt-6 relative" id="pageMain">
+    <section aria-label="Timeline des sessions S2 (10)" class="relative px-6 pb-24 sm:pb-16">
+      <div id="track" class="timeline htrack overflow-x-auto no-scrollbar flex gap-12 py-16 scroll-smooth min-w-full" tabindex="0" role="list">
+        <div id="ticks" class="ticks"></div>
+      </div>
+      <div id="rail" class="rail"></div>
     </section>
-    <!-- Bouton pour basculer Timeline ↔ Storyboard -->
     <div class="absolute left-1/2 -bottom-12 -translate-x-1/2">
-      <button id="toggleView" class="btn text-white/80">Vue Storyboard</button>
+      <button id="toggleView" class="btn text-white/85">Vue Storyboard</button>
     </div>
+    <button id="jumpStart" class="btn text-white/90 shadow-lg backdrop-blur-sm">Aller à ma session</button>
   </main>
-
-  <!-- Modale d’information de session (role=dialog) -->
-  <div id="dialogRoot" class="hidden fixed inset-0 overlay flex items-end sm:items-center justify-center p-4 z-50">
+  <div id="dialogRoot" class="hidden fixed inset-0 overlay flex items-end sm:items-center justify-center p-4 z-50" aria-hidden="true">
     <div role="dialog" aria-modal="true" aria-labelledby="dlgTitle" aria-describedby="dlgDesc" class="dialog w-full max-w-md rounded-2xl shadow-2xl ring-1 ring-white/10 p-5">
       <div class="flex items-start gap-3">
-        <img id="dlgImg" class="h-12 w-12 object-contain pixi-img" alt="" width="48" height="48" loading="lazy" decoding="async" />
+        <div class="relative h-12 w-12">
+          <div class="skel rounded-xl" aria-hidden="true"></div>
+          <img id="dlgImg" class="h-12 w-12 object-contain pixi-img opacity-0 transition-opacity duration-300" alt="" width="48" height="48" loading="lazy" decoding="async" />
+        </div>
         <div class="min-w-0">
           <h2 id="dlgTitle" class="text-base font-semibold"></h2>
           <p id="dlgDesc" class="text-sm text-white/80 mt-1"></p>
-          <a id="dlgLink" aria-disabled="false" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 mt-3 text-sm font-medium text-black bg-[var(--gold)] hover:brightness-95 px-3 py-1.5 rounded-lg transition" href="#">Ouvrir dans NotebookLM</a>
+          <a id="dlgLink" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 mt-3 text-sm font-medium text-black bg-[var(--accent)] hover:brightness-95 px-3 py-1.5 rounded-lg transition" href="#">Ouvrir dans NotebookLM</a>
+          <p id="dlgLockMsg" class="mt-2 text-xs text-white/60 hidden">🔒 Disponible après activation de cette session.</p>
         </div>
       </div>
       <div class="flex justify-end mt-4">
-        <button id="dlgClose" class="text-sm text-white/80 hover:text-white px-3 py-1.5 rounded-md ring-1 ring-white/10">Fermer (Esc)</button>
+        <button id="dlgClose" class="text-sm text-white/85 hover:text-white px-3 py-1.5 rounded-md ring-1 ring-white/10">Fermer (Esc)</button>
       </div>
     </div>
   </div>
-
-  <!-- Zone SR pour annoncer la session active -->
   <div id="srLive" class="sr-only" aria-live="polite"></div>
-
-  <footer class="max-w-6xl mx-auto px-6 py-10 text-xs text-white/70 text-center">© 2025 · Projet <span class="font-medium text-[var(--gold)]">RNP</span> — Timeline S1</footer>
-
+  <footer class="max-w-6xl mx-auto px-6 py-10 text-xs text-white/70 text-center" id="pageFooter">© 2025 · Projet <span class="font-medium text-[var(--accent)]">RNP</span> — Timeline S2</footer>
   <script>
-    //------------------------------
-    // 1) CONFIG (haut de fichier)
-    //------------------------------
-    const DATA={
-      // Session à afficher au chargement (ex: 7 => S7). 1 à 12
-      startSession:7,
-      // Dégradés utilisés pour teinter le fond selon l’élément centré
-      gradients:[["#0f172a","#1f2937"],["#111827","#334155"],["#0b1220","#2b3440"],["#101418","#2a2f36"],["#131313","#2b2b2b"],["#0e1a1a","#243c3c"],["#15161a","#2c2d33"],["#12151a","#2b3340"],["#151519","#2e2a22"],["#14151a","#2f2d35"],["#16161b","#302f3a"],["#171717","#343434"]],
-      // Contenu S1→S12 (textes + liens + images)
+    const JSON_URL='data/s2.json';
+    const CACHE_KEY='rnp:s2:data';
+    const DEFAULT_DATA={
+      meta:{title:'Timeline — RNP S2',favicon:'assets/favicon.ico'},
+      analytics:{enabled:false,domain:'ton-domaine.github.io'},
+      startSession:1,
+      gradients:[["#0d1220","#1d2432"],["#101726","#222a3a"],["#0f1623","#1f2533"],["#0e1522","#1f2634"],["#0f1420","#212738"],["#0e1520","#1d2734"],["#0f1422","#1f2939"],["#0e1522","#202a3b"],["#0f1624","#202a3c"],["#101626","#232c3e"]],
       sessions:[
-        {id:"S1",type:"FUN",titre:"Cube Identitaire (FUN)",resume:"Prise en main + modéliser un cube-persona pour se présenter.",notebook:"https://notebooklm.google.com/placeholder/S1",pixi:"assets/pixi-identite.png"},
-        {id:"S2",type:"THÉORIE",titre:"Grammaire Temps Réel & Caméra (THÉORIE)",resume:"Navigation moteur temps réel, valeurs de plan, focale & expo.",notebook:"https://notebooklm.google.com/placeholder/S2",pixi:"assets/pixi-camera.png"},
-        {id:"S3",type:"TECHNIQUE",titre:"Initiation Mise en Page (TECHNIQUE)",resume:"Première planche narrative A3 et lien modèle 3D ↔ mise en page.",notebook:"https://notebooklm.google.com/placeholder/S3",pixi:"assets/pixi-layout.png"},
-        {id:"S4",type:"FUN",titre:"Pictionary 3D (FUN)",resume:"Modélisation rapide chronométrée pour lire/écrire des formes.",notebook:"https://notebooklm.google.com/placeholder/S4",pixi:"assets/pixi-pictionary.png"},
-        {id:"S5",type:"THÉORIE",titre:"Grammaire Ciné/Photo & DA (THÉORIE)",resume:"Lumière, cadrage, LUTs : décoder des plans pour une DA claire.",notebook:"https://notebooklm.google.com/placeholder/S5",pixi:"assets/pixi-rembrandt.png"},
-        {id:"S6",type:"TECHNIQUE",titre:"Hygiène Modèle & Plugins (TECHNIQUE)",resume:"Nettoyage, pivots, nomenclature, plugins clés pour le workflow.",notebook:"https://notebooklm.google.com/placeholder/S6",pixi:"assets/pixi-hygiene.png"},
-        {id:"S7",type:"FUN",titre:"Idéation par IA & Lumière (FUN)",resume:"Générer des ambiances & style-guides, bases de prompt structuré.",notebook:"https://notebooklm.google.com/placeholder/S7",pixi:"assets/pixi-ia.png"},
-        {id:"S8",type:"THÉORIE",titre:"Lumière & Caméras Avancées (THÉORIE)",resume:"Key/Fill/Rim, cohérence des trajectoires caméra pour le récit.",notebook:"https://notebooklm.google.com/placeholder/S8",pixi:"assets/pixi-3points.png"},
-        {id:"S9",type:"TECHNIQUE",titre:"Matériaux PBR & D5 (TECHNIQUE)",resume:"Roughness/Metalness, normales, comparaison moteurs de rendu.",notebook:"https://notebooklm.google.com/placeholder/S9",pixi:"assets/pixi-pbr.png"},
-        {id:"S10",type:"FUN",titre:"Montage & Rythme (FUN/THÉORIE)",resume:"3 actes, titrage, transitions — assembler un rough-cut lisible.",notebook:"https://notebooklm.google.com/placeholder/S10",pixi:"assets/pixi-montage.png"},
-        {id:"S11",type:"THÉORIE",titre:"Prompt Engineering Avancé (THÉORIE)",resume:"Structure avancée des prompts pour résultats précis & traçables.",notebook:"https://notebooklm.google.com/placeholder/S11",pixi:"assets/pixi-prompt.png"},
-        {id:"S12",type:"TECHNIQUE",titre:"Restitution Finale & Jury (TECH/ÉVAL)",resume:"Exports propres, QA, présentation des livrables au jury.",notebook:"https://notebooklm.google.com/placeholder/S12",pixi:"assets/pixi-jury.png"}
+        {id:'S1',type:'FUN',titre:'Kickoff Agence & Marque',resume:'Brief contraint, naming, codes visuels, objectifs S2.',notebook:'https://notebooklm.google.com/placeholder/S1',pixi:'assets/pixi-agence.png'},
+        {id:'S2',type:'THÉORIE',titre:'Storyboard & Arc Narratif',resume:'Story-beats, promesse produit, plan de tournage.',notebook:'https://notebooklm.google.com/placeholder/S2',pixi:'assets/pixi-story.png'},
+        {id:'S3',type:'TECHNIQUE',titre:'Production de Base',resume:'Scènes mères, caméras types, pipeline fichiers.',notebook:'https://notebooklm.google.com/placeholder/S3',pixi:'assets/pixi-setup.png'},
+        {id:'S4',type:'FUN',titre:'IA Vidéo & Assistant ‘Agence’',resume:'Séquences IA courtes + CustomGPT pour shotlists.',notebook:'https://notebooklm.google.com/placeholder/S4',pixi:'assets/pixi-ia-agency.png'},
+        {id:'S5',type:'THÉORIE',titre:'Caméras Avancées & Lumière Dirigée',resume:'Trajectoires clean, key/fill/rim narratifs.',notebook:'https://notebooklm.google.com/placeholder/S5',pixi:'assets/pixi-camera-adv.png'},
+        {id:'S6',type:'TECHNIQUE',titre:'Proof of Concept & QA',resume:'PoC vidéo + checklist qualité formelle.',notebook:'https://notebooklm.google.com/placeholder/S6',pixi:'assets/pixi-poc.png'},
+        {id:'S7',type:'FUN',titre:'Sprint 50 Renders',resume:'Itérations massives, filtres, variantes de DA.',notebook:'https://notebooklm.google.com/placeholder/S7',pixi:'assets/pixi-sprint.png'},
+        {id:'S8',type:'THÉORIE',titre:'Audit & Curation Multi-supports',resume:'Critères pro, sélection des 5 key visuals.',notebook:'https://notebooklm.google.com/placeholder/S8',pixi:'assets/pixi-audit.png'},
+        {id:'S9',type:'TECHNIQUE',titre:'Poster A1 & Mini-Portfolio',resume:'Mise en page studio, cohérence marque.',notebook:'https://notebooklm.google.com/placeholder/S9',pixi:'assets/pixi-portfolio.png'},
+        {id:'S10',type:'TECHNIQUE',titre:'Pitch Vidéo & Soutenance',resume:'Encodage, sous-titres, pitch investisseur.',notebook:'https://notebooklm.google.com/placeholder/S10',pixi:'assets/pixi-pitch.png'}
       ],
-      pixiFallback:"assets/pixi-default.png"
+      pixiFallback:'assets/pixi-default.png',
+      version:'s2-default'
     };
-
-    //------------------------------
-    // 2) UTILITAIRES DOM + sécurité HTML
-    //------------------------------
-    const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+    const isValidData=d=>d&&Array.isArray(d.sessions)&&d.sessions.length>0&&Array.isArray(d.gradients)&&typeof d.startSession==='number';
+    (function(){window.logEvent=function(e,p={}){try{if(typeof window.plausible==='function')window.plausible(e,{props:p});if(typeof window.gtag==='function')window.gtag('event',e,p);}catch{}}})();
+    const status=document.getElementById('status');
+    const setStatus=(m,ok=true)=>{status.textContent=m;status.className='mt-3 text-xs '+(ok?'text-green-300':'text-red-300')};
+    async function loadData(){
+      try{
+        const res=await fetch(JSON_URL,{cache:'no-store'});
+        if(!res.ok) throw new Error('HTTP '+res.status);
+        const data=await res.json();
+        if(!isValidData(data)) throw new Error('Schéma invalide');
+        try{localStorage.setItem(CACHE_KEY,JSON.stringify({version:data.version||'net',data}))}catch{}
+        setStatus('Données chargées depuis le réseau');
+        logEvent('data_loaded',{source:'network',version:String(data.version||'net')});
+        return data;
+      }catch(err){
+        try{
+          const raw=localStorage.getItem(CACHE_KEY);
+          if(raw){const parsed=JSON.parse(raw);if(isValidData(parsed.data)){setStatus('Données chargées depuis le cache local ('+(parsed.version||'cache')+')',true);logEvent('data_loaded',{source:'cache',version:String(parsed.version||'cache')});return parsed.data;}}
+        }catch(e){logEvent('error',{where:'cache_read',message:String(e&&e.message||e)})}
+        setStatus('Réseau indisponible — utilisation des données par défaut',false);
+        logEvent('data_loaded',{source:'default'});
+        return DEFAULT_DATA;
+      }
+    }
+    let DATA=DEFAULT_DATA;
+    (async function init(){
+      DATA=await loadData();
+      try{if(DATA.meta?.title)document.title=DATA.meta.title;if(DATA.meta?.favicon){let link=document.querySelector('link[rel="icon"]');if(!link){link=document.createElement('link');link.rel='icon';document.head.appendChild(link)}link.href=DATA.meta.favicon}}catch{}
+      try{if(DATA.analytics?.enabled&&DATA.analytics?.domain){const s=document.createElement('script');s.defer=true;s.setAttribute('data-domain',DATA.analytics.domain);s.src='https://plausible.io/js/script.js';document.head.appendChild(s);setStatus((status.textContent||'')+' · Analytics actif')}}catch(e){logEvent('error',{where:'analytics_init',message:String(e&&e.message||e)})}
+      renderAll();
+    })();
+    const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
     const escapeHTML=s=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m]));
-
-    //------------------------------
-    // 3) RENDU DES CARTES SUR LA PISTE
-    //------------------------------
-    const track=$('#track');
+    const trackEl=$('#track');
     const short=(t,max=80)=>{t=String(t||'');return t.length>max?t.slice(0,max-1)+'…':t};
-
-    // Fabrique une carte PiXi + légende (Sx + titre)
-    const makeCard=(s,idx)=>{
-      const img=s.pixi||DATA.pixiFallback;
-      const el=document.createElement('article');
-      el.className='hslide shrink-0 relative text-center';
-      el.setAttribute('role','listitem');
-      el.dataset.index=idx;
-      el.dataset.type=s.type||'';
-      el.innerHTML=`
-        <button class="openDlg block mx-auto -mb-1" aria-label="Détails ${escapeHTML(s.id)} — ${escapeHTML(s.titre)}" data-index="${idx}" data-tip="${escapeHTML(short(s.resume))}">
-          <img src="${escapeHTML(img)}" alt="PiXi — ${escapeHTML(s.id)}" class="h-20 w-20 md:h-24 md:w-24 object-contain pixi-img" width="96" height="96" loading="lazy" decoding="async" />
-        </button>
-        <div class="mt-2">
-          <span class="text-[11px] tracking-widest uppercase text-white/60">${escapeHTML(s.id)}</span>
-          <h3 class="text-sm md:text-base font-medium leading-tight">${escapeHTML(s.titre)}</h3>
-        </div>`;
-      return el;
-    };
-
-    // Injection des 12 sessions
-    DATA.sessions.forEach((s,i)=>track.appendChild(makeCard(s,i)));
-
-    //------------------------------
-    // 4) « Bande cinéma » : rail sous la piste
-    //------------------------------
-    const rail=document.createElement('div');
-    rail.className='rail';
-    track.appendChild(rail);
-
-    // Garde un fond uniforme mais recalculé à la bonne largeur
-    const buildRailGradient=()=>{ rail.style.background='linear-gradient(90deg,#0f1318 0%,#3a3f45 50%,#0f1318 100%)' };
-
-    // Mesure via scrollWidth (plus robuste que la position du dernier item)
-    let rafId=null; // évite les recalculs multiples
-    const layoutRail=()=>{ if(rafId) cancelAnimationFrame(rafId); rafId=requestAnimationFrame(()=>{ rail.style.width=track.scrollWidth+"px"; buildRailGradient(); }); };
-
-    layoutRail(); // initial
-    addEventListener('resize',layoutRail);
-    // Recalcule quand les images finissent de charger
-    [...track.querySelectorAll('img')].forEach(img=>{ if(img.complete) return; img.addEventListener('load',layoutRail,{once:true}) });
-    if('ResizeObserver' in window){ const ro=new ResizeObserver(layoutRail); ro.observe(track) }
-
-    //------------------------------
-    // 5) FOND DYNAMIQUE : applique un dégradé selon l’élément centré
-    //------------------------------
-    const applyGradient=i=>{
-      const g=DATA.gradients[i]||DATA.gradients[0];
+    const typeBadge=t=>t==='FUN'?"badge badge-fun":t==='THÉORIE'?"badge badge-theo":"badge badge-tech";
+    function renderCards(){
+      trackEl.querySelectorAll('article.hslide').forEach(n=>n.remove());
+      DATA.sessions.forEach((s,idx)=>{
+        const img=s.pixi||DATA.pixiFallback;
+        const locked=idx>(DATA.startSession-1);
+        const el=document.createElement('article');
+        el.className='hslide shrink-0 relative text-center'+(locked?' locked':'');
+        el.setAttribute('role','listitem');
+        el.dataset.index=idx;el.dataset.type=s.type||'';
+        const lockHTML=locked?'<span class="ml-1 align-[-1px] text-white/50" aria-hidden="true">🔒</span>':'';
+        const tip=locked?` title="Disponible à partir de ${escapeHTML(DATA.sessions[DATA.startSession-1]?.id||'cette session')}"`:'';
+        el.innerHTML=`<button class="openDlg block mx-auto -mb-1 relative" aria-label="Détails ${escapeHTML(s.id)} — ${escapeHTML(s.titre)}" data-index="${idx}"${tip}><span class="skel rounded-xl h-20 w-20 md:h-24 md:w-24"></span><img src="${escapeHTML(img)}" alt="PiXi — ${escapeHTML(s.id)}" class="h-20 w-20 md:h-24 md:w-24 object-contain pixi-img opacity-0 transition-opacity duration-300" width="96" height="96" loading="lazy" decoding="async" /></button><div class="mt-2"><span class="label-sid text-[11px] tracking-widest uppercase text-white/80">${escapeHTML(s.id)}${lockHTML}</span><h3 class="text-sm md:text-base font-medium leading-tight">${escapeHTML(s.titre)}</h3><div class="${typeBadge(s.type)} mt-0.5">${escapeHTML(s.type||'')}</div></div>`;
+        trackEl.appendChild(el);
+      });
+      $$('.openDlg img',trackEl).forEach(img=>{if(img.complete){img.classList.remove('opacity-0');img.previousElementSibling?.remove()}else{img.addEventListener('load',()=>{img.classList.remove('opacity-0');img.previousElementSibling?.remove()},{once:true})}});
+    }
+    const rail=$('#rail');
+    const ticks=$('#ticks');
+    let rafRail=null;
+    function layoutRail(){
+      if(rafRail)cancelAnimationFrame(rafRail);
+      rafRail=requestAnimationFrame(()=>{
+        const vw=trackEl.getBoundingClientRect().width;
+        rail.style.width=(trackEl.scrollWidth+vw)+'px';
+        rail.style.left=(-vw/2)+'px';
+        ticks.style.width=trackEl.scrollWidth+'px';
+        ticks.style.left='0px';
+        ticks.innerHTML='';
+        const CYCLE=3;
+        for(let i=CYCLE;i<DATA.sessions.length;i+=CYCLE){
+          const prev=$(`article[data-index="${i-1}"]`,trackEl);
+          const next=$(`article[data-index="${i}"]`,trackEl);
+          if(!prev||!next)continue;
+          const mid=((prev.offsetLeft+prev.offsetWidth/2)+(next.offsetLeft+next.offsetWidth/2))/2;
+          const t=document.createElement('div');t.className='tick';t.style.left=mid+'px';t.setAttribute('aria-hidden','true');
+          ticks.appendChild(t);
+        }
+      });
+    }
+    function applyGradient(i){
+      const g=DATA.gradients[i%DATA.gradients.length]||DATA.gradients[0];
       document.documentElement.style.setProperty('--g1',g[0]);
       document.documentElement.style.setProperty('--g2',g[1]);
-      $('#srLive').textContent=`Session active ${DATA.sessions[i].id} — ${DATA.sessions[i].titre}`; // annonce SR
-    };
-
-    //------------------------------
-    // 6) DÉTECTION DE L’ÉLÉMENT CENTRÉ + effets « zoom-out »
-    //------------------------------
-    let currentIndex=0; let currentEl=null;
-    const io=new IntersectionObserver(ents=>{
-      ents.forEach(e=>{
-        if(e.isIntersecting){
-          currentIndex=+e.target.dataset.index;
-          applyGradient(currentIndex);
-          if(currentEl) currentEl.removeAttribute('aria-current');
-          currentEl=e.target; currentEl.setAttribute('aria-current','true');
-        }
-      })
-    },{root:track,threshold:.6});
-    $$('.hslide',track).forEach(el=>io.observe(el));
-
-    // Effet de profondeur basé sur la distance au centre du viewport de la piste
-    const slides=$$('.hslide',track);
+      const exp=0.98+0.02*((i%3));
+      document.documentElement.style.setProperty('--exp',exp.toFixed(2));
+      document.getElementById('srLive').textContent=`Session active ${DATA.sessions[i].id} — ${DATA.sessions[i].titre}`;
+    }
+    let currentIndex=0,currentEl=null,io=null;
+    function setupObserver(){
+      if(io)io.disconnect();
+      io=new IntersectionObserver(ents=>{
+        ents.forEach(e=>{if(e.isIntersecting){currentIndex=+e.target.dataset.index;applyGradient(currentIndex);logEvent('session_focus',{session:DATA.sessions[currentIndex].id});if(currentEl)currentEl.removeAttribute('aria-current');currentEl=e.target;currentEl.setAttribute('aria-current','true');}})
+      },{root:trackEl,threshold:.6});
+      $$('.hslide',trackEl).forEach(el=>io.observe(el));
+      logEvent('session_focus',{session:DATA.sessions[currentIndex]?.id||'S1'});
+    }
+    const slides=()=>$$('.hslide',trackEl);
     let rafDepth=null;
-    const updateDepth=()=>{
-      if(rafDepth) return;
+    function updateDepth(){
+      if(rafDepth)return;
       rafDepth=requestAnimationFrame(()=>{
-        const tb=track.getBoundingClientRect();
-        const center=tb.left + tb.width/2;
-        slides.forEach(el=>{
-          const rb=el.getBoundingClientRect();
-          const ec=rb.left + rb.width/2;
-          const d=Math.min(1, Math.abs((ec-center)/(tb.width/2))); // 0 (centre) → 1 (bord)
-          const scale=1 - 0.15*d;    // zoom-out vers les bords
-          const y=8*d;               // légère translation verticale
-          const op=0.45 + 0.55*(1-d);// atténuation progressive
-          el.style.transform=`translateY(${y}px) scale(${scale})`;
-          el.style.opacity=op.toFixed(3);
-        });
+        const tb=trackEl.getBoundingClientRect();const center=tb.left+tb.width/2;
+        slides().forEach(el=>{const rb=el.getBoundingClientRect();const ec=rb.left+rb.width/2;const d=Math.min(1,Math.abs((ec-center)/(tb.width/2)));const scale=1-0.15*d,y=8*d,op=0.55+0.45*(1-d);const blur=(1.2*d).toFixed(2);const sat=(0.85+0.15*(1-d)).toFixed(2);el.style.transform=`translateY(${y}px) scale(${scale})`;el.style.opacity=op.toFixed(3);el.style.filter=`blur(${blur}px) saturate(${sat})`;});
         rafDepth=null;
       });
-    };
-    updateDepth();
-    track.addEventListener('scroll',updateDepth,{passive:true});
-    addEventListener('resize',updateDepth);
-
-    //------------------------------
-    // 7) MODALE : ouverture, fermeture, piège de focus
-    //------------------------------
-    const dlg=$('#dialogRoot'), dlgTitle=$('#dlgTitle'), dlgDesc=$('#dlgDesc'), dlgLink=$('#dlgLink'), dlgImg=$('#dlgImg'), dlgClose=$('#dlgClose');
+    }
+    const dlg=document.getElementById('dialogRoot'),dlgTitle=document.getElementById('dlgTitle'),dlgDesc=document.getElementById('dlgDesc'),dlgLink=document.getElementById('dlgLink'),dlgImg=document.getElementById('dlgImg'),dlgClose=document.getElementById('dlgClose');
     let lastFocus=null;
-
-    const openDlg=idx=>{
+    function setAmbientInert(on){
+      const root=document.documentElement;const parts=[document.getElementById('pageHeader'),document.getElementById('pageMain'),document.getElementById('pageFooter')];
+      if(on){root.style.overflow='hidden';parts.forEach(p=>{p?.setAttribute('aria-hidden','true');p?.setAttribute('inert','')});dlg.removeAttribute('aria-hidden')}else{root.style.overflow='';parts.forEach(p=>{p?.removeAttribute('aria-hidden');p?.removeAttribute('inert')});dlg.setAttribute('aria-hidden','true')}
+    }
+    function openDlg(idx){
       const s=DATA.sessions[idx];
-      dlgTitle.textContent=s.titre; dlgDesc.textContent=s.resume; dlgImg.src=s.pixi||DATA.pixiFallback;
-      const isValid=s.notebook && !s.notebook.includes('placeholder');
-      dlgLink.href=isValid ? s.notebook : '#';
-      dlgLink.setAttribute('aria-disabled', String(!isValid));
-      dlgLink.tabIndex=isValid ? 0 : -1;
-      dlgLink.classList.toggle('opacity-50', !isValid);
-      dlgLink.classList.toggle('cursor-not-allowed', !isValid);
-      dlgLink.classList.toggle('pointer-events-none', !isValid);
-
-      dlg.classList.remove('hidden');
-      lastFocus=document.activeElement;
-      const focusables=[...dlg.querySelectorAll('a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])')].filter(el=>!el.disabled);
-      if(focusables.length){ focusables[0].focus(); }
-    };
-
-    const closeDlg=()=>{ dlg.classList.add('hidden'); if(lastFocus) lastFocus.focus(); };
-
-    // Fermeture par clic sur l’overlay, bouton « Fermer », ou touche Échap
-    dlg.addEventListener('click',e=>{ if(e.target===dlg) closeDlg() });
-    dlgClose.addEventListener('click',closeDlg);
-    document.addEventListener('keydown',e=>{ if(e.key==='Escape' && !dlg.classList.contains('hidden')) closeDlg() });
-
-    // Piège de focus clavier à l’intérieur de la modale
-    dlg.addEventListener('keydown',e=>{
-      if(e.key!=='Tab') return;
-      const focusables=[...dlg.querySelectorAll('a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])')].filter(el=>!el.disabled && el.offsetParent!==null);
-      if(!focusables.length){ e.preventDefault(); return; }
-      const first=focusables[0], last=focusables[focusables.length-1];
-      if(e.shiftKey && document.activeElement===first){ e.preventDefault(); last.focus(); }
-      else if(!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); }
-    });
-
-    // Ouverture via clic sur une carte
-    track.addEventListener('click',e=>{ const btn=e.target.closest('.openDlg'); if(!btn) return; openDlg(+btn.dataset.index) });
-
-    //------------------------------
-    // 8) NAVIGATION CLAVIER GAUCHE/DROITE ET DÉMARRAGE
-    //------------------------------
-    const prefersReduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const goTo=i=>{ const c=Math.max(0,Math.min(DATA.sessions.length-1,i)); const t=$(`article[data-index="${c}"]`); if(t) t.scrollIntoView({behavior: prefersReduced? 'auto' : 'smooth', inline:'center', block:'nearest'}) };
-
-    // Flèches gauche/droite quand la modale est fermée
-    document.addEventListener('keydown',e=>{ if(dlg.classList.contains('hidden')){ if(e.key==='ArrowRight') goTo(currentIndex+1); if(e.key==='ArrowLeft') goTo(currentIndex-1); } });
-
-    // Centrer dès l’ouverture sur la session choisie (startSession)
-    const startAt=Math.max(0,Math.min((DATA.startSession||1)-1,DATA.sessions.length-1));
-    goTo(startAt);
-    applyGradient(startAt);
-
-    //------------------------------
-    // 9) BASCULE VUE TIMELINE ↔ STORYBOARD
-    //------------------------------
-    const toggle=$('#toggleView');
-    toggle.addEventListener('click',()=>{
-      document.body.classList.toggle('gridboard');
-      toggle.textContent=document.body.classList.contains('gridboard')? 'Vue Timeline' : 'Vue Storyboard';
-      layoutRail(); // rail inutile en grille, mais recalculé au retour timeline
-    });
-
-    //------------------------------
-    // 10) CURSEUR DORÉ (animation simple via rAF)
-    //------------------------------
-    (function(){
-      const c=$('#cursor'); if(!c) return;
-      let x=0,y=0, tx=0, ty=0, raf;
-      const loop=()=>{ tx+=(x-tx)*.18; ty+=(y-ty)*.18; c.style.transform=`translate(${tx}px, ${ty}px)`; raf=requestAnimationFrame(loop) };
-      addEventListener('mousemove',e=>{ x=e.clientX; y=e.clientY; if(!raf) loop(); });
-      addEventListener('mouseleave',()=>{ cancelAnimationFrame(raf); raf=null; c.style.opacity='.0' });
-      addEventListener('mouseenter',()=>{ c.style.opacity='.8' });
-    })();
+      [idx-1,idx+1].forEach(j=>{const n=DATA.sessions[j];if(n&&n.pixi){const pre=new Image();pre.src=n.pixi;}});
+      const skel=dlgImg.previousElementSibling;dlgImg.classList.add('opacity-0');skel.style.display='block';
+      dlgImg.onload=()=>{dlgImg.classList.remove('opacity-0');skel.style.display='none'};
+      dlgImg.src=s.pixi||DATA.pixiFallback;
+      dlgTitle.textContent=s.titre;dlgDesc.textContent=s.resume;
+      const notebookOk=/^https?:\/\//.test(s.notebook||'');
+      const withinProgress=idx<=(DATA.startSession-1);
+      const canAccess=notebookOk&&withinProgress;
+      if(canAccess){dlgLink.href=s.notebook;dlgLink.setAttribute('aria-disabled','false');dlgLink.tabIndex=0;dlgLink.textContent='Ouvrir dans NotebookLM';dlgLink.classList.remove('opacity-60','cursor-not-allowed','pointer-events-none','bg-white/10','text-white/60','border','border-white/10');dlgLink.classList.add('bg-[var(--accent)]','text-black','hover:brightness-95');document.getElementById('dlgLockMsg').classList.add('hidden')}else{dlgLink.href='#';dlgLink.setAttribute('aria-disabled','true');dlgLink.tabIndex=-1;dlgLink.textContent='Bientôt disponible';dlgLink.classList.add('opacity-60','cursor-not-allowed','pointer-events-none','bg-white/10','text-white/60','border','border-white/10');dlgLink.classList.remove('bg-[var(--accent)]','text-black','hover:brightness-95');const msg=document.getElementById('dlgLockMsg');msg.textContent=`🔒 Disponible à partir de ${DATA.sessions[DATA.startSession-1]?.id||'cette session'}.`;msg.classList.remove('hidden')}
+      logEvent('open_modal',{session:s.id,title:s.titre});
+      dlgLink.addEventListener('click',function(){const locked=idx>(DATA.startSession-1);logEvent('open_notebook',{session:s.id,locked:locked?'yes':'no'})},{once:true});
+      dlg.classList.remove('hidden');document.body.classList.add('zoomed');setAmbientInert(true);
+      lastFocus=document.activeElement;const focusables=[...dlg.querySelectorAll('a,button,input,select,textarea,[tabindex]:not([tabindex="-1"])')].filter(el=>!el.disabled);if(focusables.length){focusables[0].focus()}
+    }
+    function closeDlg(){dlg.classList.add('hidden');document.body.classList.remove('zoomed');setAmbientInert(false);if(lastFocus)lastFocus.focus()}
+    function bindEvents(){
+      trackEl.addEventListener('click',e=>{const btn=e.target.closest('.openDlg');if(!btn)return;openDlg(+btn.dataset.index)});
+      dlg.addEventListener('click',e=>{if(e.target===dlg)closeDlg()});
+      dlgClose.addEventListener('click',closeDlg);
+      document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!dlg.classList.contains('hidden'))closeDlg()});
+      dlg.addEventListener('keydown',e=>{if(e.key!=='Tab')return;const focusables=[...dlg.querySelectorAll('a,button,input,select,textarea,[tabindex]:not([tabindex="-1"])')].filter(el=>!el.disabled&&el.offsetParent!==null);if(!focusables.length){e.preventDefault();return}const first=focusables[0],last=focusables[focusables.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}});
+      const prefersReduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const goTo=i=>{const c=Math.max(0,Math.min(DATA.sessions.length-1,i));const t=document.querySelector(`article[data-index="${c}"]`);if(t)t.scrollIntoView({behavior:prefersReduced?'auto':'smooth',inline:'center',block:'nearest'})};
+      document.addEventListener('keydown',e=>{if(dlg.classList.contains('hidden')){if(e.key==='ArrowRight')goTo(currentIndex+1);if(e.key==='ArrowLeft')goTo(currentIndex-1)}});
+      const startAt=Math.max(0,Math.min((DATA.startSession||1)-1,DATA.sessions.length-1));
+      goTo(startAt);applyGradient(startAt);layoutRail();
+      document.getElementById('jumpStart').addEventListener('click',()=>{logEvent('jump_start',{session:DATA.sessions[startAt].id});goTo(startAt)});
+      const toggle=document.getElementById('toggleView');
+      const STORAGE_KEY='rnp_view_mode';
+      try{const saved=localStorage.getItem(STORAGE_KEY);if(saved==='grid'){document.body.classList.add('gridboard');toggle.textContent='Vue Timeline'}}catch{}
+      toggle.addEventListener('click',()=>{const leavingGrid=document.body.classList.contains('gridboard');document.body.classList.toggle('gridboard');const isGrid=document.body.classList.contains('gridboard');toggle.textContent=isGrid?'Vue Timeline':'Vue Storyboard';logEvent('view_mode',{mode:isGrid?'storyboard':'timeline'});try{localStorage.setItem(STORAGE_KEY,isGrid?'grid':'timeline')}catch{}layoutRail();if(leavingGrid){const t=document.querySelector(`article[data-index="${currentIndex}"]`);t?.scrollIntoView({behavior:'auto',inline:'center'})}});
+      trackEl.addEventListener('scroll',updateDepth,{passive:true});
+      addEventListener('resize',()=>{layoutRail();updateDepth()});
+      $$('.openDlg img',trackEl).forEach(img=>{if(!img.complete)img.addEventListener('load',()=>{layoutRail();updateDepth()},{once:true})});
+      if('ResizeObserver'in window){new ResizeObserver(()=>{layoutRail();updateDepth()}).observe(trackEl)}
+    }
+    function renderAll(){
+      renderCards();
+      setupObserver();
+      layoutRail();
+      updateDepth();
+      bindEvents();
+      setStatus((status.textContent||'')+' — UI initialisée');
+    }
+    (function(){const c=document.getElementById('cursor');if(!c)return;let x=0,y=0,tx=0,ty=0,raf;const loop=()=>{tx+=(x-tx)*.18;ty+=(y-ty)*.18;c.style.transform=`translate(${tx}px, ${ty}px)`;raf=requestAnimationFrame(loop)};addEventListener('mousemove',e=>{x=e.clientX;y=e.clientY;if(!raf)loop()});addEventListener('mouseleave',()=>{cancelAnimationFrame(raf);raf=null;c.style.opacity='.0'});addEventListener('mouseenter',()=>{c.style.opacity='.8'})})();
   </script>
 </body>
 </html>
